@@ -1,0 +1,3 @@
+jetpack.statusBar.append({
+    html: "Boom<i>!</i>"
+});
