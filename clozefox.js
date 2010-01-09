@@ -38,7 +38,14 @@ var myStorage = jetpack.storage.simple;
 */
 
 var cb; // used for slide later, be careful about this
-var initialContent = '<style type="text/css">h4 {font-family: Arial;}</style> <h4>Previous scoress</h4> <div id="content"></div>';
+
+var initialContent = '<style type="text/css"> \
+h4 {font-family: Arial;} \
+p.score {font-family: Verdana; font-size: 10px;} \
+</style> \
+<h4>ClozFox Test Scores</h4> \
+<div id="content"></div>';
+
 
 jetpack.future.import('slideBar'); 
 
@@ -70,11 +77,29 @@ jetpack.tabs.onFocus(function() {
   https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Statements/Const
   for details.
 */
-const STRATETGY_RANDOM = 1000;
-const ENGLISH          = 1000;
-const UNKNOWN_LANGUAGE = 9999;
+const STRATETGY_RANDOM      = 1000;
+const STRATETGY_PREPOSITION = 1100;
+const ENGLISH               = 1000;
+const UNKNOWN_LANGUAGE      = 9999;
+
 const englishFrequencyList = ["the", "of", "and", "a", "in", "to", "it", "is", "to", "was", 
 			    "I", "for", "that", "you", "he", "be", "with", "on", "by", "at"];
+
+const englishPrepositionList = ["aboard", "about", "above", "across", "after", "against", 
+				"along", "alongside", "amid", "amidst", "among", "amongst",
+				"around", "as", "aside", "astride", "at", "atop", "barring",
+				"before", "behind", "below", "beneath", "beside", "besides",
+				"between", "beyond", "but", "by", "circa", "concerning", 
+				"despite", "down", "during", "except", "excluding", "failing", 
+				"following", "for", "from", "given", "in", "inside", "into", 
+				"like", "near", "next", "of", "off", "on", "onto", 
+				"opposite", "out", "outside", "over", "pace", "past", "per", 
+				"plus", "qua", "regarding", "round", "save", "since", "than", 
+				"through", "throughout", "till", "times", "to", "toward", 
+				"towards", "under", "underneath", "unlike", "until", "up", 
+				"upon", "versus", "via", "with", "within", "without"];
+
+
 const myIcon ="http://dev.linguapolis.be/jetpack/images/uaLogo.ico";
 
 
@@ -131,7 +156,8 @@ function detectBiggestDiv() {
 
     var pageLanguage = detectLanguage(fListArray);
     if (pageLanguage == ENGLISH) {
-	createTest(doc, STRATETGY_RANDOM, ENGLISH);
+	// createTest(doc, STRATETGY_RANDOM, ENGLISH);
+	createTest(doc, STRATETGY_PREPOSITION, ENGLISH);
     }
     else {
 	
@@ -140,41 +166,6 @@ function detectBiggestDiv() {
     }     
 }
 
-
-function createTest(doc, strategy, language) {
-    switch (strategy) {
-	case STRATETGY_RANDOM:
-	  createRandomTest(doc, language);
-	  break;
-	default:
-	  console.log("Error: Unknown test strategy!");	  
-    }
-}
-
-
-function createRandomTest(doc, language) {
-    var idCounter = 1;    
-    $(doc).find("[id^=clozefox_paragraph]").each(function (index) {
-	var textStr = $(this).text();
-	var listOfWords = textStr.split(" ");
-	
-	var l = listOfWords.length;
-	for (var i = 0; i < l; i++) {
-
-	    if (idCounter > 50) break;
-
-	    if ((i % 7) === 0) {
-		currentWord = listOfWords[i]
-		listOfWords[i] = "<select id=\"clozefox_answer\"> <option value=\"wrongAnswer\">distractor</option>" 
-		listOfWords[i] += "<option value=\"trueAnswer\">" + currentWord + "</option></select>";
-		idCounter++;
-	    }
-	}
-
-	textStr = listOfWords.join(" ");
-	$(this).html(textStr);
-    });
-}
 
 function calculateFrequencyList(txt) {
     var frequencyList = new Array();
@@ -220,12 +211,139 @@ function detectLanguage(fListArray) {
     }
 }
 
+function createTest(doc, strategy, language) {
+    switch (strategy) {
+	case STRATETGY_RANDOM:
+	  createRandomTest(doc, language);
+	  break;
+	case STRATETGY_PREPOSITION:
+	  createPrepositionTest(doc, language);
+	  break;
+	default:
+	  console.log("Error: Unknown test strategy!");	  
+    }
+}
+
+
+function createRandomTest(doc, language) {
+    var idCounter = 1;    
+    $(doc).find("[id^=clozefox_paragraph]").each(function (index) {
+	var textStr = $(this).text();
+	var listOfWords = textStr.split(" ");
+	
+	var l = listOfWords.length;
+	for (var i = 0; i < l; i++) {
+
+	    if (idCounter > 50) {
+		break;
+	    }
+
+	    if ((i % 7) === 0) {
+		currentWord = listOfWords[i];
+		listOfWords[i] = "<select id=\"clozefox_answer\"> <option value=\"wrongAnswer\">distractor</option>";
+		listOfWords[i] += "<option value=\"trueAnswer\">" + currentWord + "</option></select>";
+		idCounter++;
+	    }
+	}
+
+	textStr = listOfWords.join(" ");
+	$(this).html(textStr);
+    });
+}
+
+
+Array.prototype.getRandomElements =  function(numElements) {
+    var startRange = 0;
+    var newArray = [];
+    var tmpArray = this.slice(0); // copy (clone) the array
+
+    for(var i = 0; i < numElements; i++) {
+	var endRange = tmpArray.length - 1;
+	var randomIndex = Math.floor((endRange - (startRange - 1)) * Math.random()) + startRange;
+	newArray.push( (tmpArray.splice(randomIndex, 1))[0] );
+    }
+
+    return newArray;
+}
+
+Array.prototype.indexOf = function(obj) {
+    for (var i = 0; i < this.length; i++) {
+	if (this[i] === obj)
+	    return i;
+    }
+    return -1;
+}
+
+Array.prototype.has = function(obj) {
+    return this.indexOf(obj) >= 0;
+} 
+
+Array.prototype.shuffle = function() {
+/*
+  Fisher Yates shuffle algorithm adapted from
+  http://sedition.com/perl/javascript-fy.html
+
+  This is currently a destructive function.
+*/
+  var i = this.length;
+  if ( i == 0 ) return false;
+  while ( --i ) {
+     var j = Math.floor( Math.random() * ( i + 1 ) );
+     var tempi = this[i];
+     var tempj = this[j];
+     this[i] = tempj;
+     this[j] = tempi;
+   }
+}
+
+function createPrepositionTest(doc, language) {
+    var idCounter = 1;   
+    var selectHeader = "<select id=\"clozefox_answer\">";
+    var selectFooter = "</select>"
+    var randomDistractors = englishPrepositionList.getRandomElements(3);
+ 
+    $(doc).find("[id^=clozefox_paragraph]").each(function (index) {
+	var textStr = $(this).text();
+	var listOfWords = textStr.split(" ");
+	
+	var l = listOfWords.length;
+	for (var i = 0; i < l; i++) {
+
+	    if (idCounter > 20) {
+		break;	    
+	    }
+
+	    currentWord = listOfWords[i];
+
+	    if (englishPrepositionList.has(currentWord)) {
+
+		randomDistractors = englishPrepositionList.getRandomElements(3);
+
+		var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
+				"<option value=\"wrongAnswer\">" + randomDistractors[1] + "</option>",
+				"<option value=\"wrongAnswer\">" + randomDistractors[2] + "</option>",
+				"<option value=\"trueAnswer\">" + currentWord + "</option>"];
+		
+		tmpArray.shuffle();
+
+		listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;
+
+		idCounter++;
+	    }	    	    
+	}
+
+	textStr = listOfWords.join(" ");
+	$(this).html(textStr);
+    });
+}
+
 
 function calculateScore() {
     var doc = jetpack.tabs.focused.contentDocument;
     var numCorrectAnswer = 0;
     var numGaps = 0;
     var percentage = 0;
+    var score = 0;
    
     $(doc).find("select[id='clozefox_answer']").each(function (index) {
 	//
@@ -241,7 +359,9 @@ function calculateScore() {
 	numGaps++;
     });
 
+    score = numCorrectAnswer + " out of " + numGaps
     percentage = (numCorrectAnswer * 100) / numGaps;
+    percentage = Math.round(percentage * 100) / 100; //round percentage to two decimals
     var mBody = numCorrectAnswer + " out of " + numGaps + "! ";
     mBody += "You have achieved %" + percentage;    
     
@@ -267,7 +387,7 @@ function calculateScore() {
     let scoreDetail = {'site':site, 'time':ctime, 'title':pageTitle, 'score': mBody, 'percentage': percentage};
     let scoreDetails = myStorage.scoreDetails;
 
-    if (!scoreDetails) { // if there is no scoreDetails stored yet
+    if (!scoreDetails) { // if no scoreDetails are stored yet
 	myStorage.scoreDetails = [scoreDetail];
     } 
     else {
@@ -276,8 +396,6 @@ function calculateScore() {
     }
 
     jetpack.storage.simple.sync();
-    jetpack.notifications.show("Memo saved!");
-
 }
 
 
@@ -286,24 +404,19 @@ function displayScoreDetails(content) {
     let toShow = '';
     let scoreDetails = jetpack.storage.simple.scoreDetails;
 
+    //jetpack.tabs.focused.contentWindow.location.href = "http://yahoo.com";
+
     if (!scoreDetails) {
 	content.attr('innerHTML', 'No scores saved yet!');
     } 
-    else {
-	
-	jetpack.notifications.show("toShow ENTERED!!!");
+    else {	
 	
 	for (let i = 0; i < scoreDetails.length; i++) {
-	    // toShow += '<img id="scoreDetail' + i;
-	    // toShow += '" border="0" src="http://www.kix.in/misc/jetpacks/play.png"/> ';
-	    // toShow += '<a href="#" id="url'+ i + '">' + scoreDetail[i].title + '</a>';
-	    // toShow += ' on ' + scoreDetails[i].time;
-	    //toShow += '<br/>';
-
-	    toShow += "EMRE  " +  scoreDetails[i].time + " score = " + scoreDetails[i].score + "<br/>";
-	}
-	
-	jetpack.notifications.show("toShow = " + toShow.length);
+	    //toShow += "Page tile  " +  scoreDetails[i].time + " score = " + scoreDetails[i].score + "<br/>";
+	    toShow += "<p class=\"score\">Test title: <a href=\"" + scoreDetails[i].site + "\" target=\"_new\">" +  scoreDetails[i].title + "</a><br/>";
+	    toShow += "You scored " + scoreDetails[i].score;
+	    toShow += "<hr/>";
+	}		
 	
 	content.attr('innerHTML', toShow);
     }
