@@ -24,7 +24,7 @@ var manifest = {
 };
 
 jetpack.future.import("storage.settings");
-
+jetpack.future.import("menu"); 
 
 /*
   Initialize the JetPack storage system and bind myStorage to it.
@@ -77,10 +77,21 @@ jetpack.tabs.onFocus(function() {
   https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Statements/Const
   for details.
 */
-const STRATETGY_RANDOM      = 1000;
-const STRATETGY_PREPOSITION = 1100;
+const STRATEGY_RANDOM      = 1000;
+const STRATEGY_PREPOSITION = 1100;
 const ENGLISH               = 1000;
 const UNKNOWN_LANGUAGE      = 9999;
+
+/*
+I had to use a global variable
+because during the initialization
+
+$(widget).click(runClozeFox);
+
+ran immediately when preparing the status bar!
+*/
+var testStrategy = STRATEGY_PREPOSITION;
+
 
 const englishFrequencyList = ["the", "of", "and", "a", "in", "to", "it", "is", "to", "was", 
 			    "I", "for", "that", "you", "he", "be", "with", "on", "by", "at"];
@@ -104,7 +115,7 @@ const myIcon ="http://dev.linguapolis.be/jetpack/images/uaLogo.ico";
 
 
 
-function detectBiggestDiv() { 
+function runClozeFox() { 
     var MIN_TEXT_LENGTH = 90;
     results = [];
     wholeText = "";
@@ -156,11 +167,9 @@ function detectBiggestDiv() {
 
     var pageLanguage = detectLanguage(fListArray);
     if (pageLanguage == ENGLISH) {
-	// createTest(doc, STRATETGY_RANDOM, ENGLISH);
-	createTest(doc, STRATETGY_PREPOSITION, ENGLISH);
+	createTest(doc, testStrategy, ENGLISH);
     }
-    else {
-	
+    else {	
 	var myBody = "ClozeFox could not find the main text of the page or the language of the page could not be detected, sorry!";
 	jetpack.notifications.show({title: "Language error", body: myBody, icon: myIcon});
     }     
@@ -213,10 +222,10 @@ function detectLanguage(fListArray) {
 
 function createTest(doc, strategy, language) {
     switch (strategy) {
-	case STRATETGY_RANDOM:
+	case STRATEGY_RANDOM:
 	  createRandomTest(doc, language);
 	  break;
-	case STRATETGY_PREPOSITION:
+	case STRATEGY_PREPOSITION:
 	  createPrepositionTest(doc, language);
 	  break;
 	default:
@@ -415,6 +424,7 @@ function displayScoreDetails(content) {
 	    //toShow += "Page tile  " +  scoreDetails[i].time + " score = " + scoreDetails[i].score + "<br/>";
 	    toShow += "<p class=\"score\">Test title: <a href=\"" + scoreDetails[i].site + "\" target=\"_new\">" +  scoreDetails[i].title + "</a><br/>";
 	    toShow += "You scored " + scoreDetails[i].score;
+	    toShow += " on " + scoreDetails[i].time;
 	    toShow += "<hr/>";
 	}		
 	
@@ -427,7 +437,7 @@ jetpack.statusBar.append({
     html: "Run ClozeFox!", 
     width: 75, 
     onReady: function(widget){ 
-	$(widget).click(detectBiggestDiv); 
+	$(widget).click(runClozeFox);
     } 
 });
 
@@ -440,3 +450,26 @@ jetpack.statusBar.append({
 });
 
 
+jetpack.menu.context.page.add({
+  label: "ClozeFox",
+  icon: "http://dev.linguapolis.be/jetpack/images/ua_logo.png",
+    menu: new jetpack.Menu(["Random Test", "Preposition Test", null, "Calculate Score"]),
+    command: function (menuitem) {
+	switch(menuitem.label) {
+	case "Random Test":
+	    testStrategy = STRATEGY_RANDOM;
+	    runClozeFox();
+	    break;
+	case "Preposition Test":
+	    testStrategy = STRATEGY_PREPOSITION;
+	    runClozeFox();
+	    break;
+	case "Calculate Score":
+	    calculateScore();
+	    break;
+	default:
+	    return false;
+	}
+	//jetpack.notifications.show(menuitem.label);
+    }
+});
