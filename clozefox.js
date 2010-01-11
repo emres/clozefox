@@ -1,26 +1,27 @@
 var manifest = {
-  settings: [
-    {
-      name: "twitter",
-      type: "group",
-      label: "Twitter",
-      settings: [
-        { name: "username", type: "text", label: "Username" },
-        { name: "password", type: "password", label: "Password" }
-      ]
-    },
-    {
-      name: "facebook",
-      type: "group",
-      label: "Facebook",
-      settings: [
-        { name: "username", type: "text", label: "Username", default: "jdoe" },
-        { name: "password", type: "password", label: "Secret" }
-      ]
-    },
-    { name: "music", type: "boolean", label: "Music", default: true },
-    { name: "volume", type: "range", label: "Volume", min: 0, max: 10, default: 5 }
-  ]
+    settings: [
+	{
+	    name: "twitter",
+	    type: "group",
+	    label: "Twitter",
+	    settings: [
+		{ name: "username", type: "text", label: "Username" },
+		{ name: "password", type: "password", label: "Password" }
+	    ]
+	},
+	{
+	    name: "facebook",
+	    type: "group",
+	    label: "Facebook",
+	    settings: [
+		{ name: "username", type: "text", label: "Username", default: "jdoe" },
+		{ name: "password", type: "password", label: "Secret" }
+	    ]
+	},
+	{ name: "music", type: "boolean", label: "Music", default: true },
+	{ name: "volume", type: "range", label: "Volume", min: 0, max: 10, default: 5 },
+	{ name: "shareOnTwitter", type: "boolean", label: "Share on Twitter?", default: true}
+    ]
 };
 
 jetpack.future.import("storage.settings");
@@ -77,18 +78,21 @@ jetpack.tabs.onFocus(function() {
   https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Statements/Const
   for details.
 */
-const STRATEGY_RANDOM      = 1000;
-const STRATEGY_PREPOSITION = 1100;
+const STRATEGY_RANDOM       = 1000;
+const STRATEGY_PREPOSITION  = 1100;
+
 const ENGLISH               = 1000;
+const DUTCH                 = 2000;
 const UNKNOWN_LANGUAGE      = 9999;
 
 /*
-I had to use a global variable
-because during the initialization
+I had to use a global variable because during the initialization
 
 $(widget).click(runClozeFox);
 
 ran immediately when preparing the status bar!
+
+So this is the default strategy
 */
 var testStrategy = STRATEGY_PREPOSITION;
 
@@ -111,6 +115,22 @@ const englishPrepositionList = ["aboard", "about", "above", "across", "after", "
 				"upon", "versus", "via", "with", "within", "without"];
 
 
+/*
+http://en.wiktionary.org/wiki/Wiktionary:Frequency_lists#Dutch
+*/
+const dutchFrequencyList =  ["de", "en", "het", "van", "ik", "te", "dat", "die", "in", "een",
+			     "hij", "niet", "zijn"];
+/*
+http://en.wiktionary.org/wiki/Category:Dutch_prepositions
+*/
+const dutchPrepositionList = ["aan", "achter", "bij", "binnen", "dan", "door", "in", "langs", 
+			      "met", "middels", "min", "na", "naar", "naast", "om", "onder", 
+			      "op", "over", "ongeveer", "per", "rond", "sinds", "tegen", 
+			      "tot", "tijdens", "tussen", "uit", "van", "vanaf", "vanuit", 
+			      "via", "voor", "zonder"];
+
+
+// Used for notifications
 const myIcon ="http://dev.linguapolis.be/jetpack/images/uaLogo.ico";
 
 
@@ -166,12 +186,18 @@ function runClozeFox() {
     fListArray.reverse();
 
     var pageLanguage = detectLanguage(fListArray);
-    if (pageLanguage == ENGLISH) {
-	createTest(doc, testStrategy, ENGLISH);
-    }
-    else {	
-	var myBody = "ClozeFox could not find the main text of the page or the language of the page could not be detected, sorry!";
-	jetpack.notifications.show({title: "Language error", body: myBody, icon: myIcon});
+    switch (pageLanguage) {
+	case ENGLISH:
+	  createTest(doc, testStrategy, ENGLISH);
+	  break;
+
+	case DUTCH:
+	  createTest(doc, testStrategy, DUTCH);
+	  break;
+
+	default:
+	  var myBody = "ClozeFox could not find the main text of the page or the language of the page could not be detected, sorry!";
+	  jetpack.notifications.show({title: "Language error", body: myBody, icon: myIcon});
     }     
 }
 
@@ -201,8 +227,13 @@ function calculateFrequencyList(txt) {
 
 function detectLanguage(fListArray) {
     var numOfMatchingWords = 0;
+    var resultLanguage = UNKNOWN_LANGUAGE;
     var l = englishFrequencyList.length;
 
+    //
+    // Check for English
+    //
+    numOfMatchingWords = 0;
     for (var i = 0; i < l; i++) {
 	for (var j = 0; j < l; j++) {
 	    // console.log("englishFrequencyList[" + i + "] = " + englishFrequencyList[i] + " " + "fListArray[" + j + "] = " + fListArray[j]);
@@ -213,11 +244,29 @@ function detectLanguage(fListArray) {
     }
 
     if(numOfMatchingWords > 8) {
-	return ENGLISH;
+	resultLanguage = ENGLISH;
+	return resultLanguage;
     }
-    else {
-	return UNKNOWN_LANGUAGE;
+
+    //
+    // Check for Dutch
+    //
+    numOfMatchingWords = 0; 
+    for (var i = 0; i < l; i++) {
+	for (var j = 0; j < l; j++) {
+	    if (dutchFrequencyList[i] == fListArray[j][0]) {
+		numOfMatchingWords++;
+	    }
+	}
     }
+
+    if(numOfMatchingWords > 8) {
+	resultLanguage = DUTCH;
+	return resultLanguage;
+    }
+
+
+    return resultLanguage;
 }
 
 function createTest(doc, strategy, language) {
@@ -313,33 +362,59 @@ function createPrepositionTest(doc, language) {
  
     $(doc).find("[id^=clozefox_paragraph]").each(function (index) {
 	var textStr = $(this).text();
-	var listOfWords = textStr.split(" ");
-	
-	var l = listOfWords.length;
-	for (var i = 0; i < l; i++) {
+	var listOfWords = textStr.split(" ");		
 
-	    if (idCounter > 20) {
-		break;	    
-	    }
-
-	    currentWord = listOfWords[i];
-
-	    if (englishPrepositionList.has(currentWord)) {
-
-		randomDistractors = englishPrepositionList.getRandomElements(3);
-
-		var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
-				"<option value=\"wrongAnswer\">" + randomDistractors[1] + "</option>",
-				"<option value=\"wrongAnswer\">" + randomDistractors[2] + "</option>",
-				"<option value=\"trueAnswer\">" + currentWord + "</option>"];
+	    switch (language) {		
+		case ENGLISH:
+		var l = listOfWords.length;
+		for (var i = 0; i < l; i++) {		    
+		    if (idCounter > 20) {
+			break;	    
+		    }
+		    
+		    currentWord = listOfWords[i];
+		    if (englishPrepositionList.has(currentWord)) {		    
+			randomDistractors = englishPrepositionList.getRandomElements(3);
+			
+			var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
+					"<option value=\"wrongAnswer\">" + randomDistractors[1] + "</option>",
+					"<option value=\"wrongAnswer\">" + randomDistractors[2] + "</option>",
+					"<option value=\"trueAnswer\">" + currentWord + "</option>"];
 		
-		tmpArray.shuffle();
+			tmpArray.shuffle();		    
+			listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;		    
+			idCounter++;
+		    }
+		}
+	    	break;
 
-		listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;
+		case DUTCH:
+		var l = listOfWords.length;
+		for (var i = 0; i < l; i++) {		    
+		    if (idCounter > 20) {
+			break;	    
+		    }
 
-		idCounter++;
-	    }	    	    
-	}
+		    currentWord = listOfWords[i];
+
+		    if (dutchPrepositionList.has(currentWord)) {		    
+			randomDistractors = dutchPrepositionList.getRandomElements(3);
+		    
+			var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
+					"<option value=\"wrongAnswer\">" + randomDistractors[1] + "</option>",
+					"<option value=\"wrongAnswer\">" + randomDistractors[2] + "</option>",
+					"<option value=\"trueAnswer\">" + currentWord + "</option>"];
+		
+			tmpArray.shuffle();
+			listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;
+			idCounter++;
+		    }
+		}
+		break;
+
+		default:
+		return false;		
+	    }
 
 	textStr = listOfWords.join(" ");
 	$(this).html(textStr);
@@ -405,6 +480,27 @@ function calculateScore() {
     }
 
     jetpack.storage.simple.sync();
+
+    if (jetpack.storage.settings.shareOnTwitter) {
+
+	jetpack.notifications.show("TWEEET!!!!!!!!!!!!");	
+
+	var twitterStatusMessage = "#clozefox ";
+	twitterStatusMessage += "#prepositionTest ";
+	twitterStatusMessage += mBody;
+
+	/*
+	  http://wiki.github.com/ajstiles/urly
+	  http://ur.ly/
+	*/
+	$.get("http://ur.ly/new.json?href=" + encodeURI(site) , function(data){
+	    var urlyResponse = JSON.parse(data);
+	    var shortUrl = "http://ur.ly/" + urlyResponse.code;
+	    twitterStatusMessage += " " + shortUrl;
+	    // jetpack.notifications.show(twitterStatusMessage);
+	    jetpack.lib.twitter.statuses.update({ status: twitterStatusMessage }); 
+	});	
+    }
 }
 
 
