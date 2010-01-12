@@ -1,1 +1,41 @@
-A Gap Exercise Generator Plugin with Scalable Intelligence for Mozilla Firefox 
+ClozeFox: Gap Exercise Generator with Scalable Intelligence for Mozilla Firefox
+===============================================================================
+
+This plug in is developed using the Firefox Jetpack technology and intended as a candidate 
+
+- Description
+- Operation
+- Mockups
+- About the team
+
+Description
+-----------
+We propose a Firefox extension for language learning purposes which will generate fill-in and multiple choice exercises (cloze tests) from authentic pages on the Web. Any language learner worldwide will be able to turn any authentic text into an interactive exercise on the fly by clicking the ClozeFox Extension Button. Language teachers will be able to simply direct their students to a web page and students will have the authentic web page rendered as a fill in exercise thanks to this Firefox extension.
+Operation
+
+ClozeFox first checks the page on the amount of usable and useful text, text structure and language ID based on page info or on trigrammes. It then makes a frequency list of the words in the text.
+
+The ClozeFox generator hides words on the basis of a routine with scalable intelligence: as a simple random routine would not be interesting from a linguistic-didactic point of view, ClozeFox will select gaps according to frequency level, word category, and later on semantic field, contrastive-linguistic aspect in order to turn the exercise into a rich learning experience.
+
+ClozeFox generates fill-in exercises (for complete words or word-parts on morphological level such as word endings) and multiple-choice exercises (with other words in the text as generated distractors).
+
+The ClozeFox options menu (with 'remembered' options) will include:
+
+- Number of gaps
+- Min/max length of gap
+- Per word category: nouns, prepositions, verbs …
+- Exercise type: written (with option whole word / partial word) and multiple choice (with option number of distractors)
+- Time limitation
+- Send exercise to ... (completed to show to parents/teachers what you have done as a learner; or 'empty' to send it as a teacher to your student or as a students to your co-students)
+
+ClozeFox as an application is highly scalable on the following levels:
+
+- The complexity of the routine for selecting gaps.
+- The intuitive intelligence of the system to adapt to the user based on learner behavior, performance and errors.
+- The possibility to add a refined morphological analyzer and parser later on.
+- The possibility to ask for pronunciation (through sound synthesis) or translation of the word to fill in or any word in context.
+- Turn ClozeFox into a real collaborative Web 2.0 social exercise generator:
+  + Students will become able to exchange self-made exercises, store them in social collaborative repositories, teachers can ask them to do so and monitor progress.
+  + Language teachers worldwide are expected to encourage to use Mozilla Firefox in order to enrich their own learning environment with a powerful tool for autonomous and/or collaborative learning.
+
+ClozeFox can be seen as a first product in a series of tools for enhancing the (language) learning experience. 
