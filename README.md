@@ -67,4 +67,43 @@ ClozeFox as an application is highly scalable on the following levels:
 ClozeFox can be seen as a first product in a series of tools for
 enhancing the (language) learning experience.
 
+## Mockups
+
+Some mockups are available at [here](http://dev.linguapolis.be/jetpack/jetpack.html)
+
+## About the team
+
+ [Prof. Dr. Jozef Colpaert](http://www.ua.ac.be/jozef.colpaert) is
+ professor of Instructional Design and vice-chairman of the Institute
+ for Education and Information Sciences (IOIW) at the University of
+ Antwerp (Belgium). He is also director Research and Development at
+ the Language Institute LINGUAPOLIS of the University of Antwerp, and
+ editor-in-chief of Computer Assisted Language Learning, an
+ International Journal (Taylor and Francis). For the last three years,
+ he has been an active member of the executive committee of CALICO,
+ the US organization for Computer Assisted Language Learning
+ (CALL). He has been designing and developing CALL programs for the
+ last 23 years and organizes the biennial International Antwerp CALL
+ conferences (XIIIth edition). He is currently working on Distributed
+ Language Learning, a methodological and conceptual framework for
+ designing effective language learning environments and for
+ determining the role of technology.
+
+[Emre Sevinc](http://www.ua.ac.be/main.aspx?c=emre.sevinc) is an
+experienced software developer who designed and coded various web
+platforms for the last 10 years. Prior to joining the University of
+Antwerp in Belgium, he was involved with the design and development of
+the first online MBA e-learning system in Turkey. His current research
+areas are primarily computer aided language learning (CALL), natural
+language processing, and data mining. Previously he published
+scientific articles about e-learning, natural language processing,
+multi-agent systems, cognitive science and automatic recommendation
+systems. Besides his professional roles, he is also an open source
+developer who likes to create projects for machine learning, web
+programming and user task automation.
+
+[Linguapolis](http://www.linguapolis.be/) is the Language Institute of
+the University of Antwerp (Belgium). The institute (almost 100
+teachers and researchers) organizes language courses and carries out
+R&D projects related to language learning, teaching and testing.
 
