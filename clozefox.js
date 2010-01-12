@@ -9,15 +9,7 @@ var manifest = {
 		{ name: "password", type: "password", label: "Password" }
 	    ]
 	},
-	{
-	    name: "facebook",
-	    type: "group",
-	    label: "Facebook",
-	    settings: [
-		{ name: "username", type: "text", label: "Username", default: "jdoe" },
-		{ name: "password", type: "password", label: "Secret" }
-	    ]
-	},
+	
 	{ name: "music", type: "boolean", label: "Music", default: true },
 	{ name: "volume", type: "range", label: "Volume", min: 0, max: 10, default: 5 },
 	{ name: "shareOnTwitter", type: "boolean", label: "Share on Twitter?", default: true}
@@ -132,7 +124,6 @@ const dutchPrepositionList = ["aan", "achter", "bij", "binnen", "dan", "door", "
 
 // Used for notifications
 const myIcon ="http://dev.linguapolis.be/jetpack/images/uaLogo.ico";
-
 
 
 function runClozeFox() { 
@@ -381,7 +372,9 @@ function createPrepositionTest(doc, language) {
 					"<option value=\"wrongAnswer\">" + randomDistractors[2] + "</option>",
 					"<option value=\"trueAnswer\">" + currentWord + "</option>"];
 		
-			tmpArray.shuffle();		    
+			tmpArray.shuffle();
+			tmpArray.push("<option value=\"wrongAnswer\">   </option>")
+			tmpArray.reverse();
 			listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;		    
 			idCounter++;
 		    }
@@ -406,6 +399,8 @@ function createPrepositionTest(doc, language) {
 					"<option value=\"trueAnswer\">" + currentWord + "</option>"];
 		
 			tmpArray.shuffle();
+			tmpArray.push("<option value=\"wrongAnswer\">   </option>")
+			tmpArray.reverse();
 			listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;
 			idCounter++;
 		    }
@@ -482,8 +477,6 @@ function calculateScore() {
     jetpack.storage.simple.sync();
 
     if (jetpack.storage.settings.shareOnTwitter) {
-
-	jetpack.notifications.show("TWEEET!!!!!!!!!!!!");	
 
 	var twitterStatusMessage = "#clozefox ";
 	twitterStatusMessage += "#prepositionTest ";
@@ -569,3 +562,6 @@ jetpack.menu.context.page.add({
 	//jetpack.notifications.show(menuitem.label);
     }
 });
+
+
+
