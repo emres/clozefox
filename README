@@ -1,5 +1,5 @@
-ClozeFox: Gap Exercise Generator with Scalable Intelligence for Mozilla Firefox
-===============================================================================
+# ClozeFox: Gap Exercise Generator with Scalable Intelligence for Mozilla Firefox
+
 
 This plug in is developed using the Firefox Jetpack technology and intended as a candidate 
 
@@ -8,8 +8,8 @@ This plug in is developed using the Firefox Jetpack technology and intended as a
 - Mockups
 - About the team
 
-Description
------------
+## Description
+
 We propose a Firefox extension for language learning purposes which will generate fill-in and multiple choice exercises (cloze tests) from authentic pages on the Web. Any language learner worldwide will be able to turn any authentic text into an interactive exercise on the fly by clicking the ClozeFox Extension Button. Language teachers will be able to simply direct their students to a web page and students will have the authentic web page rendered as a fill in exercise thanks to this Firefox extension.
 Operation
 
