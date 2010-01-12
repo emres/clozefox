@@ -42,7 +42,6 @@ The ClozeFox options menu (with 'remembered' options) will include:
 - Per word category: nouns, prepositions, verbs, ...
 - Exercise type: written (with option whole word / partial word) and 
   multiple choice (with option number of distractors)
-
 - Time limitation
 - Send exercise to ... (completed to show to parents/teachers what you 
   have done as a learner; or 'empty' to send it as 
