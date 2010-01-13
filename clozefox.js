@@ -345,6 +345,19 @@ Array.prototype.shuffle = function() {
    }
 }
 
+
+Array.prototype.removeByElement = function(arrayElement) {
+    var tmpArray = this.slice(0); // copy (clone) the array
+
+    for (var i= 0; i < tmpArray.length; i++) { 
+        if (tmpArray[i] == arrayElement) {
+            tmpArray.splice(i, 1); 
+	}
+    } 
+
+    return tmpArray;
+}
+
 function createPrepositionTest(doc, language) {
     var idCounter = 1;   
     var selectHeader = "<select id=\"clozefox_answer\">";
@@ -364,8 +377,10 @@ function createPrepositionTest(doc, language) {
 		    }
 		    
 		    currentWord = listOfWords[i];
-		    if (englishPrepositionList.has(currentWord)) {		    
-			randomDistractors = englishPrepositionList.getRandomElements(3);
+
+		    if (englishPrepositionList.has(currentWord)) {
+			finalPrepositionList = englishPrepositionList.removeByElement(currentWord);
+			randomDistractors = finalPrepositionList.getRandomElements(3);
 			
 			var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
 					"<option value=\"wrongAnswer\">" + randomDistractors[1] + "</option>",
@@ -391,7 +406,8 @@ function createPrepositionTest(doc, language) {
 		    currentWord = listOfWords[i];
 
 		    if (dutchPrepositionList.has(currentWord)) {		    
-			randomDistractors = dutchPrepositionList.getRandomElements(3);
+			finalPrepositionList = dutchPrepositionList.removeByElement(currentWord);
+			randomDistractors = finalPrepositionList.getRandomElements(3);			
 		    
 			var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
 					"<option value=\"wrongAnswer\">" + randomDistractors[1] + "</option>",
@@ -434,7 +450,15 @@ function calculateScore() {
 
 	if (selectedValue == "trueAnswer") {
 	    numCorrectAnswer++;
+
+	    // provide feedback for CORRECT answer
+	    $(this).css("border", "1px blue solid");
 	}
+	else {
+	    // provide feedback for WRONG answer
+	    $(this).css("border", "1px red solid");
+	}
+
 	numGaps++;
     });
 
