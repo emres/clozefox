@@ -315,14 +315,6 @@ Array.prototype.getRandomElements =  function(numElements) {
     return newArray;
 }
 
-Array.prototype.indexOf = function(obj) {
-    for (var i = 0; i < this.length; i++) {
-	if (this[i] === obj)
-	    return i;
-    }
-    return -1;
-}
-
 Array.prototype.has = function(obj) {
     return this.indexOf(obj) >= 0;
 } 
@@ -332,7 +324,7 @@ Array.prototype.shuffle = function() {
   Fisher Yates shuffle algorithm adapted from
   http://sedition.com/perl/javascript-fy.html
 
-  This is currently a destructive function.
+  This is currently a destructive function!
 */
   var i = this.length;
   if ( i == 0 ) return false;
@@ -345,18 +337,6 @@ Array.prototype.shuffle = function() {
    }
 }
 
-
-Array.prototype.removeByElement = function(arrayElement) {
-    var tmpArray = this.slice(0); // copy (clone) the array
-
-    for (var i= 0; i < tmpArray.length; i++) { 
-        if (tmpArray[i] == arrayElement) {
-            tmpArray.splice(i, 1); 
-	}
-    } 
-
-    return tmpArray;
-}
 
 function createPrepositionTest(doc, language) {
     var idCounter = 1;   
@@ -379,7 +359,13 @@ function createPrepositionTest(doc, language) {
 		    currentWord = listOfWords[i];
 
 		    if (englishPrepositionList.has(currentWord)) {
-			finalPrepositionList = englishPrepositionList.removeByElement(currentWord);
+			/*
+			  filter function:
+			  https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/filter
+
+			  Filter the preposition list array to remove the current word and return the remaining array
+			*/
+			finalPrepositionList = englishPrepositionList.filter(function (element) {return element !== currentWord;});
 			randomDistractors = finalPrepositionList.getRandomElements(3);
 			
 			var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
@@ -406,7 +392,7 @@ function createPrepositionTest(doc, language) {
 		    currentWord = listOfWords[i];
 
 		    if (dutchPrepositionList.has(currentWord)) {		    
-			finalPrepositionList = dutchPrepositionList.removeByElement(currentWord);
+			finalPrepositionList = dutchPrepositionList.filter(function (element) {return element !== currentWord;});
 			randomDistractors = finalPrepositionList.getRandomElements(3);			
 		    
 			var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
@@ -545,6 +531,25 @@ function displayScoreDetails(content) {
     }
 }
 
+function suggestPage() {
+    $.get("http://feeds.delicious.com/v2/json/YAFZ/clozefox", function(data) {
+    	var deliciousResponse = JSON.parse(data);
+	deliciousResponse.shuffle();
+    	var url =  deliciousResponse[0].u;
+    	jetpack.tabs.focused.contentWindow.location.href = url;
+    });
+
+    // $.ajax({
+    // 	type: "GET",
+    // 	url: "http://feeds.delicious.com/v2/rss/YAFZ/clozefox",
+    // 	datatype: "xml",
+    // 	success: function(xml) {
+    // 	    // var deliciousResponse = xml;
+    // 	    jetpack.notifications.show(xml);
+    // 	}
+    // });
+
+}
 
 jetpack.statusBar.append({ 
     html: "Run ClozeFox!", 
@@ -566,7 +571,7 @@ jetpack.statusBar.append({
 jetpack.menu.context.page.add({
   label: "ClozeFox",
   icon: "http://dev.linguapolis.be/jetpack/images/ua_logo.png",
-    menu: new jetpack.Menu(["Random Test", "Preposition Test", null, "Calculate Score"]),
+    menu: new jetpack.Menu(["Random Test", "Preposition Test", null, "Calculate Score", null, "Suggest a Page"]),
     command: function (menuitem) {
 	switch(menuitem.label) {
 	case "Random Test":
@@ -580,12 +585,13 @@ jetpack.menu.context.page.add({
 	case "Calculate Score":
 	    calculateScore();
 	    break;
+	case "Suggest a Page":
+	    suggestPage();
+	    break;
 	default:
 	    return false;
 	}
 	//jetpack.notifications.show(menuitem.label);
     }
 });
-
-
 
