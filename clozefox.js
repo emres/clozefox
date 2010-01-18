@@ -668,3 +668,43 @@ jetpack.menu.context.page.add({
     }
 });
 
+
+//
+// Dictionary Jetpack
+//
+// http://jetpackgallery.mozillalabs.com/jetpacks/52
+//
+jetpack.statusBar.append({
+    html: '<span style="background-color: yellow;">define</span>',
+    width:55,
+    onReady: function(doc) {
+	$(doc).click(function(){
+	    var rnd = Math.floor(Math.random()*1000);
+	    var wrd = jetpack.tabs.focused.contentDocument.getSelection();
+	    if(wrd!=""){
+		$.get("http://google.com/search",{q: "define:"+wrd}, function(data){
+		    var cTab=jetpack.tabs.focused;
+		    var handle=cTab.contentDocument.createElement("img");
+		    handle.setAttribute("onclick","document.body.removeChild(document.getElementById('dfjtpck"+rnd+"'))");
+		    handle.setAttribute("style","background-color:black;position:fixed;bottom:386px;right:1px;");
+		    handle.setAttribute("src","http://ericburling.org/jetpacks/close-icon.gif");
+		    var div=cTab.contentDocument.createElement("div");
+		    div.setAttribute("style","text-align:left;border:1px solid;position:fixed;width:450px;bottom:0px;height:400px;right:0px;background-color:white;overflow:auto;z-index:10000");
+		    var def=cTab.contentDocument.createElement("div");
+		    def.setAttribute("style","width:400px");
+		    //def.innerHTML=data.substr(data.indexOf("Definitions of"),data.indexOf("")-data.indexOf("Definitions of"));   
+		    def.innerHTML = data;
+		    div.appendChild(handle);
+		    div.appendChild(def);
+		    div.setAttribute("id","dfjtpck"+rnd);
+		    cTab.contentDocument.body.appendChild(div);
+		    delete cTab;
+		    delete handle;
+		    delete div;
+		    delete def;
+		    delete wrd;
+		    delete rnd;
+		});
+	    }
+	});
+    }});
