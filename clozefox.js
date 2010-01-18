@@ -1,4 +1,6 @@
 var manifest = {
+    firstRunPage: 'http://dev.linguapolis.be/jetpack/firstRun.html',
+
     settings: [
 	{
 	    name: "twitter",
@@ -568,10 +570,184 @@ jetpack.statusBar.append({
 });
 
 
+// jetpack.statusBar.append({
+//     html: 'R <input type="checkbox" name="resize" /> D <input type="checkbox" name="drag" />',
+//     onReady: function(widget){
+
+// 	jetpack.tabs.onFocus(function () {
+// 	    $("input", widget).attr('checked', false);
+// 	});
+	
+// 	$("input", widget).click(function () {
+// 	    var doc = jetpack.tabs.focused.contentDocument;
+// 	    var win = jetpack.tabs.focused.contentWindow;
+// 	    let method = '__' + this.getAttribute('name');
+// 	    if (this.checked) {
+// 		if (win.wrappedJSObject.__resize) {
+// 		    win.wrappedJSObject[method]();
+// 		} 
+// 		else {
+// 		    $.get("http://ajax.googleapis.com/ajax/libs/jquery/1.4.0/jquery.min.js", function(js) {
+// 			var script = doc.createElement("script");
+// 			script.innerHTML = js;
+// 			doc.body.appendChild( script );
+// 			$.get("http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js", function(js) {
+// 			    var script = doc.createElement("script");
+// 			    script.innerHTML = js;
+// 			    doc.body.appendChild( script );
+// 			    $.get("http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css", function(js) {
+// 				var style = doc.createElement("style");
+// 				style.innerHTML = js + ".ui-resizable-handle { background-color: #888 !important;}";
+// 				doc.getElementsByTagName('HEAD')[0].appendChild(style);
+// 				var script = doc.createElement("script");
+// 				script.innerHTML =
+// 				    'var __resize=function(){$("DIV").resizable({ handles: "all" })};var __resizeEnd=function(){$("DIV").resizable("destroy")};'
+// 				    + 'var __drag=function(){$("DIV").draggable()};var __dragEnd=function(){$("DIV").draggable("destroy")}';
+// 				doc.body.appendChild( script );
+// 				win.wrappedJSObject[method]();
+// 			    });
+// 			});
+// 		    });
+// 		}
+// 	    } 
+// 	    else {
+// 		win.wrappedJSObject.__resizeEnd();
+// 		win.wrappedJSObject.__dragEnd();
+// 	    }
+// 	});
+//     }
+// })
+
+// jetpack.tabs.onReady(function (tab) {
+//     var doc = jetpack.tabs.focused.contentDocument;
+//     var win = jetpack.tabs.focused.contentWindow;
+
+//     console.log("tab " + tab.location);
+
+//     var script = tab.createElementNS("http://www.w3.org/1999/xhtml", "script");
+//     script.src = "http://ajax.googleapis.com/ajax/libs/jquery/1.4.0/jquery.min.js";
+//     $(script).bind("load", function() {
+//         console.log("jquery injected");
+//     });
+//     tab.getElementsByTagName("body")[0].appendChild(script);
+
+//     script = tab.createElementNS("http://www.w3.org/1999/xhtml", "script");
+//     script.src = "http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js";
+//     $(script).bind("load", function() {
+//         console.log("jqueryUI injected");
+//     });
+//     tab.getElementsByTagName("body")[0].appendChild(script);    
+
+//     divDialog =  doc.createElementNS("http://www.w3.org/1999/xhtml","html:div");
+//     divDialog.innerHTML  =  "<div class=\"demo\">";
+//     divDialog.innerHTML += "<div id=\"dialog\" title=\"Basic dialog\">";
+//     divDialog.innerHTML += "<p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>";
+//     divDialog.innerHTML += "</div>";
+//     doc.body.appendChild(divDialog);
+
+//     script = doc.createElementNS("http://www.w3.org/1999/xhtml", "script");
+//     script.innerHTML = "";
+//     script.innerHTML += "$(function() {";
+//     script.innerHTML += "$(\"#dialog\").dialog();";
+//     script.innerHTML += "});"; 
+//     script.innerHTML += "</script>";
+//     doc.body.appendChild(script);
+
+//     testJQ();
+// });
+
+
+function testJQ() {
+    var doc = jetpack.tabs.focused.contentDocument;
+    var win = jetpack.tabs.focused.contentWindow;
+
+    $.get("http://ajax.googleapis.com/ajax/libs/jquery/1.4.0/jquery.min.js", function(js) {
+
+	var script = doc.createElement("script");
+	script.innerHTML = js;
+	// doc.body.appendChild(script);
+	doc.getElementsByTagName('HEAD')[0].appendChild(script);
+
+	$.get("http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js", function(js) {
+
+	    var script = doc.createElement("script");
+	    script.innerHTML = js;
+	    // doc.body.appendChild(script);
+	    doc.getElementsByTagName('HEAD')[0].appendChild(script);
+
+	    $.get("http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css", function(js) {
+
+		var style = doc.createElement("style");
+		style.innerHTML = js;
+		doc.getElementsByTagName('HEAD')[0].appendChild(style);
+				
+		// var script = doc.createElement("script");
+		// script.innerHTML  = 'var myDragFunc = function(){';
+                // script.innerHTML +=    '$("<style type=text/css> .drg_style {margin:5px; padding:10px; width:250px; height:25px; background:green} </style>").appendTo("body");';
+                // script.innerHTML +=    '$("<div> <div class=drg_style>Div1</div> <div class=drg_style>Div2</div> </div>").appendTo("body");';
+		// script.innerHTML +=    '$(".drg_style").draggable();';
+	        // script.innerHTML +=   '};';
+		// doc.body.appendChild(script);		
+		// win.wrappedJSObject['myDragFunc']();
+
+		// script = doc.createElement("script");
+		// script.innerHTML += 'var myDialogFunc = function () {';
+		// script.innerHTML +=  '$("<div id=dialog title=\\"Basic Dialog\\"> <p>The dialog window can be moved, resized and closed with the X icon.</p></div>").appendTo("body");';
+		// script.innerHTML += '$("#dialog").dialog({'
+		// script.innerHTML += '      bgiframe: true, height: 140, modal: true';
+		// script.innerHTML += '  });';
+		// script.innerHTML += '};';
+		// doc.body.appendChild(script);
+		// win.wrappedJSObject['myDialogFunc']();
+
+		script = doc.createElement("script");
+
+		script.innerHTML = 'var myDialogFunc = function () {';
+		script.innerHTML += '$("<div id=dialog title=\\"Basic Dialog\\"> <p>The dialog window can be moved, resized and closed with the X icon.</p></div>").appendTo("body");';
+		script.innerHTML += '$("#dialog").dialog({'
+		script.innerHTML += '      bgiframe: true, height: 140, modal: true';
+		script.innerHTML += '  });';
+		script.innerHTML += '};';
+		
+		// var dialogObject = {
+		//     jsCode : <>
+		// 	var myDialogFunc = function () {
+		// 	    // $("<div id=dialog title=Basic> <p>The dialog window can be moved, resized and closed with the X icon.</p></div>").appendTo("body");
+		// 	    $("#dialog").dialog({
+		// 		bgiframe: true, 
+		// 		height: 140, 
+		// 		modal: true
+		// 	    });
+		// 	};
+		//     </>
+		// }
+		// script.innerHTML = dialogObject.jsCode;
+
+		// var test_object = {
+		//     javascript_code: <> function ()  {return true;} </>,
+		//     initialize: function(){
+		// 	var doc = jetpack.tabs.focused.contentDocument;
+		// 	var script = doc.createElement('script');
+		// 	doc.body.appendChild(script);
+		// 	script.innerHTML = test_object.javascript_code;
+		//     }
+		// }
+
+		
+		doc.body.appendChild(script);
+		win.wrappedJSObject['myDialogFunc']();
+
+
+		
+	    });
+	});
+    });
+}
+
 jetpack.menu.context.page.add({
   label: "ClozeFox",
   icon: "http://dev.linguapolis.be/jetpack/images/ua_logo.png",
-    menu: new jetpack.Menu(["Random Test", "Preposition Test", null, "Calculate Score", null, "Suggest a Page"]),
+    menu: new jetpack.Menu(["Random Test", "Preposition Test", null, "Calculate Score", null, "Suggest a Page", "Test jQuery UI"]),
     command: function (menuitem) {
 	switch(menuitem.label) {
 	case "Random Test":
@@ -588,6 +764,8 @@ jetpack.menu.context.page.add({
 	case "Suggest a Page":
 	    suggestPage();
 	    break;
+	case "Test jQuery UI":
+	    testJQ();
 	default:
 	    return false;
 	}
