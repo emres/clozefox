@@ -72,12 +72,20 @@ jetpack.tabs.onFocus(function() {
   https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Statements/Const
   for details.
 */
+
+// Test type constants
 const STRATEGY_RANDOM       = 1000;
 const STRATEGY_PREPOSITION  = 1100;
 
+// Language constants
 const ENGLISH               = 1000;
 const DUTCH                 = 2000;
 const UNKNOWN_LANGUAGE      = 9999;
+
+// Page type constants
+const SIMPLE_ENGLISH        = 1000;
+const NORMAL_ENGLISH        = 1100;
+const NORMAL_DUTCH          = 2000;
 
 /*
 I had to use a global variable because during the initialization
@@ -161,7 +169,7 @@ function runClozeFox() {
       by the system then immediately stop processing
     */
     if (wholeText.length <= 100) {
-	var myBody = "ClozeFox could not find enough text on the page.";
+	var myBody = "Oops! Sorry, but ClozeFox could not find enough text on the page. Maybe it can suggest you a new page if you right-click on the current page and select Suggest a Page.";
 	jetpack.notifications.show({title: "Language error", body: myBody, icon: myIcon});
 	return false;
     }
@@ -181,15 +189,17 @@ function runClozeFox() {
     var pageLanguage = detectLanguage(fListArray);
     switch (pageLanguage) {
 	case ENGLISH:
-	  createTest(doc, testStrategy, ENGLISH);
+	  enableCalculateScore();
+	  createTest(doc, testStrategy, ENGLISH);	
 	  break;
 
 	case DUTCH:
+	  enableCalculateScore();
 	  createTest(doc, testStrategy, DUTCH);
 	  break;
 
 	default:
-	  var myBody = "ClozeFox could not find the main text of the page or the language of the page could not be detected, sorry!";
+	  var myBody = "Oops! Sorry, ClozeFox could not find the main text of the page or the language of the page could not be detected. Maybe it can suggest you a new page if you right-click on the current page and select Suggest a Page";
 	  jetpack.notifications.show({title: "Language error", body: myBody, icon: myIcon});
     }     
 }
@@ -488,6 +498,8 @@ function calculateScore() {
 
     jetpack.storage.simple.sync();
 
+    disableCalculateScore();
+
     if (jetpack.storage.settings.shareOnTwitter) {
 
 	var twitterStatusMessage = "#clozefox ";
@@ -533,13 +545,34 @@ function displayScoreDetails(content) {
     }
 }
 
-function suggestPage() {
-    $.get("http://feeds.delicious.com/v2/json/YAFZ/clozefox", function(data) {
+function suggestPage(pageType) {
+    var tagList = "clozefox";
+    var url = "http://feeds.delicious.com/v2/json/YAFZ/";    
+
+    switch (pageType) {
+	case SIMPLE_ENGLISH:
+	  tagList += "+simple+english";
+	  break;
+        case NORMAL_ENGLISH:
+	  tagList += "+normal+english";
+	  break;
+	case NORMAL_DUTCH:
+	  tagList += "+normal+dutch";
+	  break;
+	default:
+	  return false;
+    }
+
+    url += tagList;
+
+    $.get(url, function(data) {
     	var deliciousResponse = JSON.parse(data);
 	deliciousResponse.shuffle();
     	var url =  deliciousResponse[0].u;
     	jetpack.tabs.focused.contentWindow.location.href = url;
     });
+
+    disableCalculateScore();
 
     // $.ajax({
     // 	type: "GET",
@@ -639,34 +672,211 @@ function testJQ() {
 
 
 
-jetpack.menu.context.page.add({
-  label: "ClozeFox",
-  icon: "http://dev.linguapolis.be/jetpack/images/ua_logo.png",
-    menu: new jetpack.Menu(["Random Test", "Preposition Test", null, "Calculate Score", null, "Suggest a Page", "Test jQuery UI"]),
-    command: function (menuitem) {
-	switch(menuitem.label) {
-	case "Random Test":
+var clozeFoxMenu =  new jetpack.Menu([
+    { 
+	label: "Random Test", 
+	command: function () {
 	    testStrategy = STRATEGY_RANDOM;
 	    runClozeFox();
-	    break;
-	case "Preposition Test":
+	}
+    },
+    {
+	label: "Preposition Test", 
+	command: function () {
 	    testStrategy = STRATEGY_PREPOSITION;
 	    runClozeFox();
-	    break;
-	case "Calculate Score":
-	    calculateScore();
-	    break;
-	case "Suggest a Page":
-	    suggestPage();
-	    break;
-	case "Test jQuery UI":
-	    testJQ();
-	default:
-	    return false;
 	}
-	//jetpack.notifications.show(menuitem.label);
+    },
+    
+    null, // separator
+
+    {
+	label: "Calculate Score", 
+	command: function () {
+	    calculateScore();
+	},
+	disabled: true
+    }, 
+
+    null, 
+
+    {
+	label: "Suggest a Page (Simple English)",
+	command: function () {
+	    suggestPage(SIMPLE_ENGLISH);
+	}
+    },
+    {
+	label: "Suggest a Page (Normal English)",
+	command: function () {
+	    suggestPage(NORMAL_ENGLISH);
+	}
+    }, 
+    {
+	label: "Suggest a Page (Normal Dutch)",
+	command: function () {
+	    suggestPage(NORMAL_DUTCH);
+	}
+    },
+
+    null,
+
+    {
+	label: "Test jQuery UI",
+	command: function () {
+	    testJQ();
+	}
     }
+]);
+
+jetpack.menu.context.page.add({
+    label: "ClozeFox",
+    icon: "http://dev.linguapolis.be/jetpack/images/ua_logo.png",
+    menu: clozeFoxMenu
 });
+
+
+function enableCalculateScore() {
+    var clozeFoxMenu =  new jetpack.Menu([
+	{ 
+	    label: "Random Test", 
+	    command: function () {
+		testStrategy = STRATEGY_RANDOM;
+		runClozeFox();
+	    }
+	},
+	{
+	    label: "Preposition Test", 
+	    command: function () {
+		testStrategy = STRATEGY_PREPOSITION;
+		runClozeFox();
+	    }
+	},
+	
+	null, // separator
+	
+	{
+	    label: "Calculate Score", 
+	    command: function () {
+		calculateScore();
+	    }
+	}, 
+	
+	null, 
+	
+	{
+	    label: "Suggest a Page (Simple English)",
+	    command: function () {
+		suggestPage(SIMPLE_ENGLISH);
+	    }
+	},
+	{
+	    label: "Suggest a Page (Normal English)",
+	    command: function () {
+		suggestPage(NORMAL_ENGLISH);
+	    }
+	}, 
+	{
+	    label: "Suggest a Page (Normal Dutch)",
+	    command: function () {
+		suggestPage(NORMAL_DUTCH);
+	    }
+	},
+	
+	null,
+	
+	{
+	    label: "Test jQuery UI",
+	    command: function () {
+		testJQ();
+	    }
+	}
+    ]);   
+
+    jetpack.menu.context.page.beforeShow = function (menu, context) {
+	menu.reset();
+	menu.set({
+	    label: "ClozeFox",
+	    icon: "http://dev.linguapolis.be/jetpack/images/ua_logo.png",
+	    menu: clozeFoxMenu
+	});
+    }    
+}
+
+
+//
+// FIX ME:
+// 
+// This is a horrible way of doing this but I couldn't find an easier way, yet.
+//
+
+function disableCalculateScore() {
+    var clozeFoxMenu =  new jetpack.Menu([
+	{ 
+	    label: "Random Test", 
+	    command: function () {
+		testStrategy = STRATEGY_RANDOM;
+		runClozeFox();
+	    }
+	},
+	{
+	    label: "Preposition Test", 
+	    command: function () {
+		testStrategy = STRATEGY_PREPOSITION;
+		runClozeFox();
+	    }
+	},
+	
+	null, // separator
+	
+	{
+	    label: "Calculate Score", 
+	    command: function () {
+		calculateScore();
+	    },
+	    disabled: true 
+	}, 
+	
+	null, 
+	
+	{
+	    label: "Suggest a Page (Simple English)",
+	    command: function () {
+		suggestPage(SIMPLE_ENGLISH);
+	    }
+	},
+	{
+	    label: "Suggest a Page (Normal English)",
+	    command: function () {
+		suggestPage(NORMAL_ENGLISH);
+	    }
+	}, 
+	{
+	    label: "Suggest a Page (Normal Dutch)",
+	    command: function () {
+		suggestPage(NORMAL_DUTCH);
+	    }
+	},
+	
+	null,
+	
+	{
+	    label: "Test jQuery UI",
+	    command: function () {
+		testJQ();
+	    }
+	}
+    ]);   
+
+    jetpack.menu.context.page.beforeShow = function (menu, context) {
+	menu.reset();
+	menu.set({
+	    label: "ClozeFox",
+	    icon: "http://dev.linguapolis.be/jetpack/images/ua_logo.png",
+	    menu: clozeFoxMenu
+	});
+    }    
+}
 
 
 //
@@ -678,11 +888,12 @@ jetpack.statusBar.append({
     html: '<span style="background-color: yellow;">define</span>',
     width:55,
     onReady: function(doc) {
-	$(doc).click(function(){
+	$(doc).click( function () {
 	    var rnd = Math.floor(Math.random()*1000);
 	    var wrd = jetpack.tabs.focused.contentDocument.getSelection();
-	    if(wrd!=""){
-		$.get("http://google.com/search",{q: "define:"+wrd}, function(data){
+	    if(wrd!="") {
+		// $.get("http://en.wiktionary.org/wiki/leraar", {q: ""}, function(data) {  // Why does this try to refresh the whole page!?
+		$.get("http://google.com/search", {q: "define:" + wrd}, function (data) {  
 		    var cTab=jetpack.tabs.focused;
 		    var handle=cTab.contentDocument.createElement("img");
 		    handle.setAttribute("onclick","document.body.removeChild(document.getElementById('dfjtpck"+rnd+"'))");
