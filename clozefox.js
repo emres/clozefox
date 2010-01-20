@@ -195,12 +195,14 @@ function runClozeFox() {
     switch (pageLanguage) {
 	case ENGLISH:
 	  enableCalculateScore();
-	  createTest(doc, testStrategy, ENGLISH);	
+	  createTest(doc, testStrategy, ENGLISH);
+	  languageTestUrl = jetpack.tabs.focused.contentWindow.location.href;
 	  break;
 
 	case DUTCH:
 	  enableCalculateScore();
 	  createTest(doc, testStrategy, DUTCH);
+          languageTestUrl = jetpack.tabs.focused.contentWindow.location.href;
 	  break;
 
 	default:
@@ -741,6 +743,13 @@ function disableCalculateScore() {
 	clozeFoxMenu.item("Calculate Score").disabled = true;
     };
 }
+
+
+jetpack.tabs.onClose(function () {
+    if (languageTestUrl === jetpack.tabs.focused.contentWindow.location.href) {
+	disableCalculateScore();
+    }
+});
 
 //
 // Dictionary Jetpack
