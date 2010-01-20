@@ -41,7 +41,6 @@ p.score {font-family: Verdana; font-size: 10px;} \
 <h4>ClozFox Test Scores</h4> \
 <div id="content"></div>';
 
-
 jetpack.future.import('slideBar'); 
 
 jetpack.slideBar.append({
@@ -73,31 +72,37 @@ jetpack.tabs.onFocus(function() {
   for details.
 */
 
-// Test type constants
+/*
+  Test type constants
+*/
 const STRATEGY_RANDOM       = 1000;
 const STRATEGY_PREPOSITION  = 1100;
 
-// Language constants
+/*
+  Language constants
+*/
 const ENGLISH               = 1000;
 const DUTCH                 = 2000;
 const UNKNOWN_LANGUAGE      = 9999;
 
-// Page type constants
+/*
+ Page type constants
+*/
 const SIMPLE_ENGLISH        = 1000;
 const NORMAL_ENGLISH        = 1100;
 const NORMAL_DUTCH          = 2000;
 
 /*
-I had to use a global variable because during the initialization
-
+I had to use a global variable because during the initialization:
 $(widget).click(runClozeFox);
-
 ran immediately when preparing the status bar!
-
 So this is the default strategy
 */
 var testStrategy = STRATEGY_PREPOSITION;
 
+/*
+  Language-specific constants
+*/
 
 const englishFrequencyList = ["the", "of", "and", "a", "in", "to", "it", "is", "to", "was", 
 			    "I", "for", "that", "you", "he", "be", "with", "on", "by", "at"];
@@ -204,7 +209,6 @@ function runClozeFox() {
     }     
 }
 
-
 function calculateFrequencyList(txt) {
     var frequencyList = new Array();
     var listOfWords = txt.toLowerCase().split(/[\s,.]+/);
@@ -226,7 +230,6 @@ function calculateFrequencyList(txt) {
 
     return frequencyList;
 }
-
 
 function detectLanguage(fListArray) {
     var numOfMatchingWords = 0;
@@ -268,7 +271,6 @@ function detectLanguage(fListArray) {
 	return resultLanguage;
     }
 
-
     return resultLanguage;
 }
 
@@ -285,7 +287,6 @@ function createTest(doc, strategy, language) {
     }
 }
 
-
 function createRandomTest(doc, language) {
     var idCounter = 1;    
     $(doc).find("[id^=clozefox_paragraph]").each(function (index) {
@@ -295,7 +296,7 @@ function createRandomTest(doc, language) {
 	var l = listOfWords.length;
 	for (var i = 0; i < l; i++) {
 
-	    if (idCounter > 50) {
+	    if (idCounter > 50) { // don't try process every word on the page
 		break;
 	    }
 
@@ -311,7 +312,6 @@ function createRandomTest(doc, language) {
 	$(this).html(textStr);
     });
 }
-
 
 Array.prototype.getRandomElements =  function(numElements) {
     var startRange = 0;
@@ -337,6 +337,7 @@ Array.prototype.shuffle = function() {
   http://sedition.com/perl/javascript-fy.html
 
   This is currently a destructive function!
+  It modifies the array it acts upon, so use with care.
 */
   var i = this.length;
   if ( i == 0 ) return false;
@@ -348,7 +349,6 @@ Array.prototype.shuffle = function() {
      this[j] = tempi;
    }
 }
-
 
 function createPrepositionTest(doc, language) {
     var idCounter = 1;   
@@ -362,74 +362,73 @@ function createPrepositionTest(doc, language) {
 
 	    switch (language) {		
 		case ENGLISH:
-		var l = listOfWords.length;
-		for (var i = 0; i < l; i++) {		    
-		    if (idCounter > 20) {
-			break;	    
-		    }
+		  var l = listOfWords.length;
+		  for (var i = 0; i < l; i++) {		    
+		      if (idCounter > 20) {      // don't try to process every word on the page
+			  break;	    
+		      }
 		    
-		    currentWord = listOfWords[i];
+		      currentWord = listOfWords[i];
 
-		    if (englishPrepositionList.has(currentWord)) {
-			/*
-			  filter function:
-			  https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/filter
-
-			  Filter the preposition list array to remove the current word and return the remaining array
-			*/
-			finalPrepositionList = englishPrepositionList.filter(function (element) {return element !== currentWord;});
-			randomDistractors = finalPrepositionList.getRandomElements(3);
-			
-			var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
-					"<option value=\"wrongAnswer\">" + randomDistractors[1] + "</option>",
-					"<option value=\"wrongAnswer\">" + randomDistractors[2] + "</option>",
-					"<option value=\"trueAnswer\">" + currentWord + "</option>"];
+		      if (englishPrepositionList.has(currentWord)) {
+			  /*
+			    filter function:
+			    https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/filter
+			    
+			    Filter the preposition list array to remove the current word and return the remaining array
+			  */
+			  finalPrepositionList = englishPrepositionList.filter(function (element) {return element !== currentWord;});
+			  randomDistractors = finalPrepositionList.getRandomElements(3);
+			  
+			  var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
+					  "<option value=\"wrongAnswer\">" + randomDistractors[1] + "</option>",
+					  "<option value=\"wrongAnswer\">" + randomDistractors[2] + "</option>",
+					  "<option value=\"trueAnswer\">" + currentWord + "</option>"];
 		
-			tmpArray.shuffle();
-			tmpArray.push("<option value=\"wrongAnswer\">   </option>")
-			tmpArray.reverse();
-			listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;		    
-			idCounter++;
-		    }
-		}
-	    	break;
+			  tmpArray.shuffle();
+			  tmpArray.push("<option value=\"wrongAnswer\">   </option>")
+			  tmpArray.reverse();
+			  listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;		    
+			  idCounter++;
+		      }
+		  }
+	    	  break;
 
-		case DUTCH:
-		var l = listOfWords.length;
-		for (var i = 0; i < l; i++) {		    
-		    if (idCounter > 20) {
-			break;	    
-		    }
+	        case DUTCH:
+		  var l = listOfWords.length;
+		  for (var i = 0; i < l; i++) {		    
+		      if (idCounter > 20) {     // don't try to process every word on the page
+			  break;	    
+		      }
 
-		    currentWord = listOfWords[i];
-
-		    if (dutchPrepositionList.has(currentWord)) {		    
-			finalPrepositionList = dutchPrepositionList.filter(function (element) {return element !== currentWord;});
-			randomDistractors = finalPrepositionList.getRandomElements(3);			
-		    
-			var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
-					"<option value=\"wrongAnswer\">" + randomDistractors[1] + "</option>",
-					"<option value=\"wrongAnswer\">" + randomDistractors[2] + "</option>",
-					"<option value=\"trueAnswer\">" + currentWord + "</option>"];
+		      currentWord = listOfWords[i];
+		      
+		      if (dutchPrepositionList.has(currentWord)) {		    
+			  finalPrepositionList = dutchPrepositionList.filter(function (element) {return element !== currentWord;});
+			  randomDistractors = finalPrepositionList.getRandomElements(3);			
+			  
+			  var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
+					  "<option value=\"wrongAnswer\">" + randomDistractors[1] + "</option>",
+					  "<option value=\"wrongAnswer\">" + randomDistractors[2] + "</option>",
+					  "<option value=\"trueAnswer\">" + currentWord + "</option>"];
 		
-			tmpArray.shuffle();
-			tmpArray.push("<option value=\"wrongAnswer\">   </option>")
-			tmpArray.reverse();
-			listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;
-			idCounter++;
-		    }
-		}
-		break;
+			  tmpArray.shuffle();
+			  tmpArray.push("<option value=\"wrongAnswer\">   </option>")
+			  tmpArray.reverse();
+			  listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;
+			  idCounter++;
+		      }
+		  }
+		  break;
 
 		default:
-		return false;		
+		  return false;		
 	    }
 
 	textStr = listOfWords.join(" ");
 	$(this).html(textStr);
     });
 }
-
 
 function calculateScore() {
     var doc = jetpack.tabs.focused.contentDocument;
@@ -453,6 +452,7 @@ function calculateScore() {
 	    $(this).css("border", "1px blue solid");
 	}
 	else {
+
 	    // provide feedback for WRONG answer
 	    $(this).css("border", "1px red solid");
 	}
@@ -506,20 +506,15 @@ function calculateScore() {
 	twitterStatusMessage += "#prepositionTest ";
 	twitterStatusMessage += mBody;
 
-	/*
-	  http://wiki.github.com/ajstiles/urly
-	  http://ur.ly/
-	*/
 	$.get("http://ur.ly/new.json?href=" + encodeURI(site) , function(data){
 	    var urlyResponse = JSON.parse(data);
 	    var shortUrl = "http://ur.ly/" + urlyResponse.code;
 	    twitterStatusMessage += " " + shortUrl;
-	    // jetpack.notifications.show(twitterStatusMessage);
 	    jetpack.lib.twitter.statuses.update({ status: twitterStatusMessage }); 
+	    jetpack.notifications.show("ClozeFox updated your Twitter status to show your score.");
 	});	
     }
 }
-
 
 function displayScoreDetails(content) {    
 
@@ -670,8 +665,6 @@ function testJQ() {
     });
 }
 
-
-
 var clozeFoxMenu =  new jetpack.Menu([
     { 
 	label: "Random Test", 
@@ -737,147 +730,17 @@ jetpack.menu.context.page.add({
 
 
 function enableCalculateScore() {
-    var clozeFoxMenu =  new jetpack.Menu([
-	{ 
-	    label: "Random Test", 
-	    command: function () {
-		testStrategy = STRATEGY_RANDOM;
-		runClozeFox();
-	    }
-	},
-	{
-	    label: "Preposition Test", 
-	    command: function () {
-		testStrategy = STRATEGY_PREPOSITION;
-		runClozeFox();
-	    }
-	},
-	
-	null, // separator
-	
-	{
-	    label: "Calculate Score", 
-	    command: function () {
-		calculateScore();
-	    }
-	}, 
-	
-	null, 
-	
-	{
-	    label: "Suggest a Page (Simple English)",
-	    command: function () {
-		suggestPage(SIMPLE_ENGLISH);
-	    }
-	},
-	{
-	    label: "Suggest a Page (Normal English)",
-	    command: function () {
-		suggestPage(NORMAL_ENGLISH);
-	    }
-	}, 
-	{
-	    label: "Suggest a Page (Normal Dutch)",
-	    command: function () {
-		suggestPage(NORMAL_DUTCH);
-	    }
-	},
-	
-	null,
-	
-	{
-	    label: "Test jQuery UI",
-	    command: function () {
-		testJQ();
-	    }
-	}
-    ]);   
-
-    jetpack.menu.context.page.beforeShow = function (menu, context) {
-	menu.reset();
-	menu.set({
-	    label: "ClozeFox",
-	    icon: "http://dev.linguapolis.be/jetpack/images/ua_logo.png",
-	    menu: clozeFoxMenu
-	});
-    }    
+    clozeFoxMenu.beforeShow = function () {
+	clozeFoxMenu.item("Calculate Score").disabled = false;
+    };
 }
 
-
-//
-// FIX ME:
-// 
-// This is a horrible way of doing this but I couldn't find an easier way, yet.
-//
 
 function disableCalculateScore() {
-    var clozeFoxMenu =  new jetpack.Menu([
-	{ 
-	    label: "Random Test", 
-	    command: function () {
-		testStrategy = STRATEGY_RANDOM;
-		runClozeFox();
-	    }
-	},
-	{
-	    label: "Preposition Test", 
-	    command: function () {
-		testStrategy = STRATEGY_PREPOSITION;
-		runClozeFox();
-	    }
-	},
-	
-	null, // separator
-	
-	{
-	    label: "Calculate Score", 
-	    command: function () {
-		calculateScore();
-	    },
-	    disabled: true 
-	}, 
-	
-	null, 
-	
-	{
-	    label: "Suggest a Page (Simple English)",
-	    command: function () {
-		suggestPage(SIMPLE_ENGLISH);
-	    }
-	},
-	{
-	    label: "Suggest a Page (Normal English)",
-	    command: function () {
-		suggestPage(NORMAL_ENGLISH);
-	    }
-	}, 
-	{
-	    label: "Suggest a Page (Normal Dutch)",
-	    command: function () {
-		suggestPage(NORMAL_DUTCH);
-	    }
-	},
-	
-	null,
-	
-	{
-	    label: "Test jQuery UI",
-	    command: function () {
-		testJQ();
-	    }
-	}
-    ]);   
-
-    jetpack.menu.context.page.beforeShow = function (menu, context) {
-	menu.reset();
-	menu.set({
-	    label: "ClozeFox",
-	    icon: "http://dev.linguapolis.be/jetpack/images/ua_logo.png",
-	    menu: clozeFoxMenu
-	});
-    }    
+    clozeFoxMenu.beforeShow = function () {
+	clozeFoxMenu.item("Calculate Score").disabled = true;
+    };
 }
-
 
 //
 // Dictionary Jetpack
