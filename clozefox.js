@@ -163,21 +163,22 @@ function runClozeFox() {
 	    wholeText = wholeText + " " + textStr;
 	}
     });
+    
 
     // for(var i = 0; i < results.length; i++) {
     // 	$(doc).find("#clozefox_paragraph_" + results[i]).remove();
-    // }     
-
+    // }         
 
     /*
       If the enough amount of text cannot be found or grabbed correctly 
       by the system then immediately stop processing
     */
     if (wholeText.length <= 100) {
-	var myBody = "Oops! Sorry, but ClozeFox could not find enough text on the page. Maybe it can suggest you a new page if you right-click on the current page and select Suggest a Page.";
+	var myBody = "Oops! Sorry, but ClozeFox could not find enough text on the page. Maybe it can suggest you a new page";
+	myBody     += " if you right-click on the current page and select Suggest a Page.";
 	jetpack.notifications.show({title: "Language error", body: myBody, icon: myIcon});
 	return false;
-    }
+    }        
 
     var fList;
     var fListArray = new Array();
@@ -208,7 +209,8 @@ function runClozeFox() {
 	  break;
 
 	default:
-	  var myBody = "Oops! Sorry, ClozeFox could not find the main text of the page or the language of the page could not be detected. Maybe it can suggest you a new page if you right-click on the current page and select Suggest a Page";
+	  var myBody = "Oops! Sorry, ClozeFox could not find the main text of the page or the language of the page could not be detected." 
+	  myBody     += " Maybe it can suggest you a new page if you right-click on the current page and select Suggest a Page";
 	  jetpack.notifications.show({title: "Language error", body: myBody, icon: myIcon});
     }     
 }
@@ -238,16 +240,17 @@ function calculateFrequencyList(txt) {
 function detectLanguage(fListArray) {
     var numOfMatchingWords = 0;
     var resultLanguage = UNKNOWN_LANGUAGE;
-    var l = englishFrequencyList.length;
+    var l = 0;
 
     //
     // Check for English
     //
     numOfMatchingWords = 0;
-    for (var i = 0; i < l; i++) {
-	for (var j = 0; j < l; j++) {
-	    // console.log("englishFrequencyList[" + i + "] = " + englishFrequencyList[i] + " " + "fListArray[" + j + "] = " + fListArray[j]);
-	    if (englishFrequencyList[i] == fListArray[j][0]) {
+    fListArrayLength = fListArray.length;
+    englishFrequencyListLength = englishFrequencyList.length
+    for (var i = 0; i < fListArrayLength; i++) {
+	for (var j = 0; j < englishFrequencyListLength; j++) {
+	    if (fListArray[i][0] == englishFrequencyList[j]) {
 		numOfMatchingWords++;
 	    }
 	}
@@ -262,13 +265,16 @@ function detectLanguage(fListArray) {
     // Check for Dutch
     //
     numOfMatchingWords = 0; 
-    for (var i = 0; i < l; i++) {
-	for (var j = 0; j < l; j++) {
-	    if (dutchFrequencyList[i] == fListArray[j][0]) {
+    fListArrayLength = fListArray.length;
+    dutchFrequencyListLength = dutchFrequencyList.length
+    for (var i = 0; i < fListArrayLength; i++) {
+	for (var j = 0; j < dutchFrequencyListLength; j++) {
+	    if (fListArray[i][0] == dutchFrequencyList[j]) {
 		numOfMatchingWords++;
 	    }
 	}
     }
+
 
     if(numOfMatchingWords > 8) {
 	resultLanguage = DUTCH;
