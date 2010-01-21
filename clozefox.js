@@ -194,13 +194,15 @@ function runClozeFox() {
     var pageLanguage = detectLanguage(fListArray);
     switch (pageLanguage) {
 	case ENGLISH:
-	  enableCalculateScore();
+	  //enableCalculateScore();
+	  disableTestsAndEnableCalculateScore();
 	  createTest(doc, testStrategy, ENGLISH);
 	  languageTestUrl = jetpack.tabs.focused.contentWindow.location.href;
 	  break;
 
 	case DUTCH:
-	  enableCalculateScore();
+	  //enableCalculateScore();
+	  disableTestsAndEnableCalculateScore();
 	  createTest(doc, testStrategy, DUTCH);
           languageTestUrl = jetpack.tabs.focused.contentWindow.location.href;
 	  break;
@@ -500,7 +502,7 @@ function calculateScore() {
 
     jetpack.storage.simple.sync();
 
-    disableCalculateScore();
+    enableTestsAndDisableCalculateScore();    
 
     if (jetpack.storage.settings.shareOnTwitter) {
 
@@ -570,6 +572,7 @@ function suggestPage(pageType) {
     });
 
     disableCalculateScore();
+    enableTests();
 
     // $.ajax({
     // 	type: "GET",
@@ -744,10 +747,28 @@ function disableCalculateScore() {
     };
 }
 
+function enableTestsAndDisableCalculateScore() {
+    clozeFoxMenu.beforeShow = function () {
+	clozeFoxMenu.item("Random Test").disabled = false;
+	clozeFoxMenu.item("Preposition Test").disabled = false;
+	clozeFoxMenu.item("Calculate Score").disabled = true;
+    };
+}
+
+
+function disableTestsAndEnableCalculateScore() {
+    clozeFoxMenu.beforeShow = function () {
+	clozeFoxMenu.item("Random Test").disabled = true;
+	clozeFoxMenu.item("Preposition Test").disabled = true;
+	clozeFoxMenu.item("Calculate Score").disabled = false;
+    };
+}
+
 
 jetpack.tabs.onClose(function () {
     if (languageTestUrl === jetpack.tabs.focused.contentWindow.location.href) {
 	disableCalculateScore();
+	enableTests();
     }
 });
 
