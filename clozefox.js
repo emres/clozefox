@@ -91,6 +91,7 @@ const UNKNOWN_LANGUAGE      = 9999;
 const SIMPLE_ENGLISH        = 1000;
 const NORMAL_ENGLISH        = 1100;
 const NORMAL_DUTCH          = 2000;
+const SIMPLE_DUTCH          = 2100;
 
 /*
 I had to use a global variable because during the initialization:
@@ -564,6 +565,9 @@ function suggestPage(pageType) {
 	case NORMAL_DUTCH:
 	  tagList += "+normal+dutch";
 	  break;
+        case SIMPLE_DUTCH:
+	  tagList += "+simple+dutch";
+	  break;
 	default:
 	  return false;
     }
@@ -720,6 +724,12 @@ var clozeFoxMenu =  new jetpack.Menu([
 	label: "Suggest a Page (Normal Dutch)",
 	command: function () {
 	    suggestPage(NORMAL_DUTCH);
+	}
+    },
+    {
+	label: "Suggest a Page (Simple Dutch)",
+	command: function () {
+	    suggestPage(SIMPLE_DUTCH);
 	}
     },
 
