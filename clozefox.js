@@ -38,9 +38,9 @@ var initialContent = '<style type="text/css"> \
 h4 {font-family: Arial;} \
 p.score {font-family: Verdana; font-size: 12px;} \
 </style> \
-<h4>Statistics</h4> \
+<h4>ClozeFox Summary Statistics</h4> \
 <div id="stats"></div> \
-<h4>ClozFox Test Scores</h4> \
+<h4>ClozeFox Test Scores</h4> \
 <div id="content"></div>';
 
 jetpack.future.import('slideBar'); 
@@ -557,8 +557,15 @@ function displayScoreStats(statsDiv) {
     else {
 
 	let numberOfTestsDone = scoreDetails.length;
+	/*
+	  see 
+	  http://stackoverflow.com/questions/2118123/why-does-reduceright-return-nan-in-javascript
+	  for details about reduceRight 
+	*/
+	let totalScore = scoreDetails.reduceRight(function(x, y) {return x + y.percentage;}, 0); 
 
 	toShow += '<p class="score">Number of tests done = ' + numberOfTestsDone + '</p>';
+	toShow += '<p class="score">Average percentage of success = %' + totalScore / numberOfTestsDone + '</p>';
 	toShow += "<hr/>";
 
 	statsDiv.attr('innerHTML', toShow);
