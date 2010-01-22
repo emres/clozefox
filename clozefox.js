@@ -36,8 +36,10 @@ var cb; // used for slide later, be careful about this
 
 var initialContent = '<style type="text/css"> \
 h4 {font-family: Arial;} \
-p.score {font-family: Verdana; font-size: 10px;} \
+p.score {font-family: Verdana; font-size: 12px;} \
 </style> \
+<h4>Statistics</h4> \
+<div id="stats"></div> \
 <h4>ClozFox Test Scores</h4> \
 <div id="content"></div>';
 
@@ -52,7 +54,8 @@ jetpack.slideBar.append({
 	cb = slide;
     },
     onSelect: function(slide) {
-	displayScoreDetails($(slide.contentDocument).find("#content"));	
+	displayScoreDetails($(slide.contentDocument).find("#content"));
+	displayScoreStats($(slide.contentDocument).find("#stats"));
     }
 });
 
@@ -543,6 +546,33 @@ function displayScoreDetails(content) {
     }
 }
 
+function displayScoreStats(statsDiv) {    
+
+    let toShow = '';
+    let scoreDetails = jetpack.storage.simple.scoreDetails;
+
+    if (!scoreDetails) {
+	content.attr('innerHTML', 'No stats yet!');
+    } 
+    else {
+
+	let numberOfTestsDone = scoreDetails.length;
+
+	toShow += '<p class="score">Number of tests done = ' + numberOfTestsDone + '</p>';
+	toShow += "<hr/>";
+
+	statsDiv.attr('innerHTML', toShow);
+    }
+}
+
+
+function deleteScoreDetails() {
+    let scoreDetails = myStorage.scoreDetails;
+    scoreDetails = null;
+    myStorage.scoreDetails = scoreDetails;
+    myStorage.sync();
+}
+
 function suggestPage(pageType) {
     var tagList = "clozefox";
     var url = "http://feeds.delicious.com/v2/json/YAFZ/";    
@@ -573,8 +603,7 @@ function suggestPage(pageType) {
     	jetpack.tabs.focused.contentWindow.location.href = url;
     });
 
-    disableCalculateScore();
-    enableTests();
+    enableTestsAndDisableCalculateScore();
 }
 
 function testJQ() {
@@ -667,6 +696,16 @@ var clozeFoxMenu =  new jetpack.Menu([
 	label: "Suggest a Page (Simple Dutch)",
 	command: function () {
 	    suggestPage(SIMPLE_DUTCH);
+	}
+    },
+
+    null,
+
+    {
+	label: "Delete score details",
+	command: function () {
+	    jetpack.notifications.show("Delete Score Deails!");
+	    deleteScoreDetails();
 	}
     },
 
