@@ -1,3 +1,15 @@
+/*
+ * ClozeFox Firefox Jetpack Plug-in  
+ *
+ * developed by Emre Sevinc and Jozef Colpaert at University of Antwerp
+ * http://www.ua.ac.be
+ *
+ * License: GNU GPL v3 and the X11/MIT license
+ * See http://www.gnu.org/licenses/gpl.html
+ *
+*/
+
+
 var manifest = {
     firstRunPage: 'http://dev.linguapolis.be/jetpack/firstRun.html',
 
@@ -69,17 +81,23 @@ jetpack.tabs.onFocus(function() {
 
 
 /*
-  Define the relevant constants. Please be aware that the const is a
+  Define the relevant constants and variables. Please be aware that the const is a
   Mozilla-specific extension, it is not supported by IE.  see
   https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Statements/Const
   for details.
 */
 
 /*
-  Test type constants
+  Test type constants and variables
 */
 const STRATEGY_RANDOM       = 1000;
 const STRATEGY_PREPOSITION  = 1100;
+
+var testStrategy = 0;
+var testStrategyToString = [];
+testStrategyToString[STRATEGY_RANDOM] = "#randomTest";
+testStrategyToString[STRATEGY_PREPOSITION] = "#prepositionTest";
+
 
 /*
   Language constants
@@ -95,14 +113,6 @@ const SIMPLE_ENGLISH        = 1000;
 const NORMAL_ENGLISH        = 1100;
 const NORMAL_DUTCH          = 2000;
 const SIMPLE_DUTCH          = 2100;
-
-/*
-I had to use a global variable because during the initialization:
-$(widget).click(runClozeFox);
-ran immediately when preparing the status bar!
-So this is the default strategy
-*/
-var testStrategy = STRATEGY_PREPOSITION;
 
 /*
   Language-specific constants
@@ -145,7 +155,7 @@ const dutchPrepositionList = ["aan", "achter", "bij", "binnen", "dan", "door", "
 const myIcon ="http://dev.linguapolis.be/jetpack/images/uaLogo.ico";
 
 
-function runClozeFox() { 
+function runClozeFox(strategy) { 
     var MIN_TEXT_LENGTH = 90;
     results = [];
     wholeText = "";
@@ -193,14 +203,14 @@ function runClozeFox() {
 	case ENGLISH:
 	  //enableCalculateScore();
 	  disableTestsAndEnableCalculateScore();
-	  createTest(doc, testStrategy, ENGLISH);
+	  createTest(doc, strategy, ENGLISH);
 	  languageTestUrl = jetpack.tabs.focused.contentWindow.location.href;
 	  break;
 
 	case DUTCH:
 	  //enableCalculateScore();
 	  disableTestsAndEnableCalculateScore();
-	  createTest(doc, testStrategy, DUTCH);
+	  createTest(doc, strategy, DUTCH);
           languageTestUrl = jetpack.tabs.focused.contentWindow.location.href;
 	  break;
 
@@ -491,7 +501,7 @@ function calculateScore() {
     ctime += " at " + time.getHours();
     ctime += ":" + time.getMinutes();
   
-    let scoreDetail = {'site':site, 'time':ctime, 'title':pageTitle, 'score': mBody, 'percentage': percentage};
+    let scoreDetail = {'site':site, 'time':ctime, 'title':pageTitle, 'score': mBody, 'percentage': percentage, 'strategy': testStrategy};
     let scoreDetails = myStorage.scoreDetails;
 
     if (!scoreDetails) { // if no scoreDetails are stored yet
@@ -509,7 +519,7 @@ function calculateScore() {
     if (jetpack.storage.settings.shareOnTwitter) {
 
 	var twitterStatusMessage = "#clozefox ";
-	twitterStatusMessage += "#prepositionTest ";
+	twitterStatusMessage += testStrategyToString[testStrategy] +  " ";
 	twitterStatusMessage += mBody;
 
 	$.get("http://ur.ly/new.json?href=" + encodeURI(site) , function(data){
@@ -538,6 +548,7 @@ function displayScoreDetails(content) {
 	    //toShow += "Page tile  " +  scoreDetails[i].time + " score = " + scoreDetails[i].score + "<br/>";
 	    toShow += "<p class=\"score\">Test title: <a href=\"" + scoreDetails[i].site + "\" target=\"_new\">" +  scoreDetails[i].title + "</a><br/>";
 	    toShow += "You scored " + scoreDetails[i].score;
+	    toShow += " for " + testStrategyToString[scoreDetails[i].strategy] ;
 	    toShow += " on " + scoreDetails[i].time;
 	    toShow += "<hr/>";
 	}		
@@ -557,15 +568,34 @@ function displayScoreStats(statsDiv) {
     else {
 
 	let numberOfTestsDone = scoreDetails.length;
+	let numberOfRandomTests = scoreDetails.filter(function(element) {return element.strategy === STRATEGY_RANDOM;}).length;
+	let numberOfPrepositionTests = scoreDetails.filter(function(element) {return element.strategy === STRATEGY_PREPOSITION;}).length;
 	/*
 	  see 
 	  http://stackoverflow.com/questions/2118123/why-does-reduceright-return-nan-in-javascript
 	  for details about reduceRight 
 	*/
-	let totalScore = scoreDetails.reduceRight(function(x, y) {return x + y.percentage;}, 0); 
+	let totalScore = scoreDetails.reduceRight(function(x, y) {return x + y.percentage;}, 0);
 
-	toShow += '<p class="score">Number of tests done = ' + numberOfTestsDone + '</p>';
-	toShow += '<p class="score">Average percentage of success = %' + totalScore / numberOfTestsDone + '</p>';
+	let totalRandomTestScore = scoreDetails
+	                           .filter(function(element) {return element.strategy === STRATEGY_RANDOM;})
+	                           .reduceRight(function(x, y) {return x + y.percentage;}, 0);
+
+	let totalPrepositionTestScore = scoreDetails
+	                           .filter(function(element) {return element.strategy === STRATEGY_PREPOSITION;})
+	                           .reduceRight(function(x, y) {return x + y.percentage;}, 0);
+ 
+
+	toShow += '<p class="score">Number of random tests done = ' + numberOfRandomTests + '<br/>';
+	toShow += 'Average percentage of success = %' + (totalRandomTestScore / numberOfRandomTests)  + '</p>';
+
+	toShow += '<p class="score">Number of preposition tests done = ' + numberOfPrepositionTests + '<br/>';
+	toShow += 'Average percentage of success = %' + (totalPrepositionTestScore / numberOfPrepositionTests)+ '</p>';
+
+	toShow += '<p class="score">Total number of tests done = ' + numberOfTestsDone + '<br/>';
+	toShow += 'Average percentage of success = %' + (totalScore / numberOfTestsDone) + '</p>';
+
+	toShow += '<p> <img src="http://chart.apis.google.com/chart?chs=300x100&amp;chf=a,s,EFEFEFF0&amp;chd=t:' + (totalRandomTestScore / numberOfRandomTests) + ',' + (totalScore / numberOfTestsDone) + '&amp;cht=p3&amp;chl=Random|Preposition" alt="Sample chart"> </p>';
 	toShow += "<hr/>";
 
 	statsDiv.attr('innerHTML', toShow);
@@ -621,20 +651,20 @@ function testJQ() {
 
 	var script = doc.createElement("script");
 	script.innerHTML = js;
-	// doc.body.appendChild(script);
 	doc.getElementsByTagName('HEAD')[0].appendChild(script);
 
 	$.get("http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js", function(js) {
 
 	    var script = doc.createElement("script");
 	    script.innerHTML = js;
-	    // doc.body.appendChild(script);
 	    doc.getElementsByTagName('HEAD')[0].appendChild(script);
 
 	    $.get("http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css", function(js) {
 
 		var style = doc.createElement("style");
 		style.innerHTML = js;
+		// style.setAttribute("type") = "text/css";
+		// style.setAttribute("media") = "all";
 		doc.getElementsByTagName('HEAD')[0].appendChild(style);
 				
 		script = doc.createElement("script");
@@ -658,14 +688,14 @@ var clozeFoxMenu =  new jetpack.Menu([
 	label: "Random Test", 
 	command: function () {
 	    testStrategy = STRATEGY_RANDOM;
-	    runClozeFox();
+	    runClozeFox(STRATEGY_RANDOM);
 	}
     },
     {
 	label: "Preposition Test", 
 	command: function () {
 	    testStrategy = STRATEGY_PREPOSITION;
-	    runClozeFox();
+	    runClozeFox(STRATEGY_PREPOSITION);
 	}
     },
     
@@ -711,13 +741,19 @@ var clozeFoxMenu =  new jetpack.Menu([
     {
 	label: "Delete score details",
 	command: function () {
-	    jetpack.notifications.show("Delete Score Deails!");
+	    jetpack.notifications.show("Deleting Score Deails!");
 	    deleteScoreDetails();
 	}
     },
 
     null,
-
+    {
+	label: "Help",
+	command: function () {
+	    let helpPage = "http://dev.linguapolis.be/jetpack/firstRun.html";
+	    jetpack.tabs.open(helpPage).focus(); 
+	}
+    },
     {
 	label: "Test jQuery UI",
 	command: function () {
