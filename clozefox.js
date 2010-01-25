@@ -764,10 +764,10 @@ function suggestPage(pageType) {
 
 /**
  *
- * Tests the jQueryUI functionality by displaying a modal dialog box
+ * Prints the About box for ClozeFox
  *
  */
-function testJQ() {
+function printAboutClozeFox() {
     var doc = jetpack.tabs.focused.contentDocument;
     var win = jetpack.tabs.focused.contentWindow;
 
@@ -783,23 +783,23 @@ function testJQ() {
 	    script.innerHTML = js;
 	    doc.getElementsByTagName('HEAD')[0].appendChild(script);
 
-	    $.get("http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css", function(js) {
-
+	    $.get("http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css", function(js) {		
 		var style = doc.createElement("style");
+		js = js.replace("url(", "url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/", "g"); 
 		style.innerHTML = js;
-		// style.setAttribute("type") = "text/css";
-		// style.setAttribute("media") = "all";
+		style.setAttribute("type", "text/css");
+		style.setAttribute("media", "all");
 		doc.getElementsByTagName('HEAD')[0].appendChild(style);
 				
 		script = doc.createElement("script");
 
 		script.innerHTML = 'var myDialogFunc = function () {';
-		script.innerHTML += '$("<div id=dialog title=\\"Basic Dialog\\"> <p>The dialog window can be moved, resized and closed with the X icon.</p></div>").appendTo("body");';
+		script.innerHTML += '$("<div id=dialog title=\\"About ClozeFox\\"> <p>ClozeFox Firefox Jetpack Plug-in</p> <p>developed by Emre Sevinc and Jozef Colpaert at University of Antwerp</p> <p> <a href=\\"http://www.ua.ac.be\\">http://www.ua.ac.be</a> </p> </div>").appendTo("body");';
 		script.innerHTML += '$("#dialog").dialog({'
-		script.innerHTML += '      bgiframe: true, height: 140, modal: true';
+		script.innerHTML += '      bgiframe: true, width: 350, height: 300, modal: true, draggable: false';
 		script.innerHTML += '  });';
 		script.innerHTML += '};';		
-		
+		  
 		doc.body.appendChild(script);
 		win.wrappedJSObject['myDialogFunc']();		
 	    });
@@ -902,9 +902,9 @@ var clozeFoxMenu =  new jetpack.Menu([
 	}
     },
     {
-	label: "Test jQuery UI",
+	label: "About ClozeFox",
 	command: function () {
-	    testJQ();
+	    printAboutClozeFox();
 	}
     }
 ]);
