@@ -7,7 +7,7 @@
  * License: GNU GPL v3 and the X11/MIT license
  * See http://www.gnu.org/licenses/gpl.html
  *
-*/
+ */
 
 
 var manifest = {
@@ -31,22 +31,29 @@ var manifest = {
 };
 
 jetpack.future.import("storage.settings");
-jetpack.future.import("menu"); 
+jetpack.future.import("menu");
+jetpack.future.import('clipboard');
 
 /*
-  Initialize the JetPack storage system and bind myStorage to it.
-*/
+ *
+ * Initialize the JetPack storage system and bind myStorage to it.
+ *
+ */
 
 jetpack.future.import("storage.simple"); 
 var myStorage = jetpack.storage.simple; 
 
 /*
-  Initialize the JetPack slidebar system and activate it.
-*/
+ *
+ * Initialize the JetPack slidebar system and activate it.
+ *
+ */
 
 var cb; // used for slide later, be careful about this
 
 var initialContent = '<style type="text/css"> \
+div#content {background-color: white; height: 400px; padding-left: 3px; overflow: auto} \
+div#stats {background-color: white; height: 300px; padding-left: 3px; overflow: auto} \
 h4 {font-family: Arial;} \
 p.score {font-family: Verdana; font-size: 12px;} \
 </style> \
@@ -71,7 +78,7 @@ jetpack.slideBar.append({
     }
 });
 
-jetpack.tabs.onFocus(function() {
+jetpack.tabs.onFocus(function () {
   let scoreDetails = jetpack.storage.simple.scoreDetails;
   for (let i = 0; i < scoreDetails.length; i++) {
     if (this.url == scoreDetails[i].site)
@@ -80,16 +87,28 @@ jetpack.tabs.onFocus(function() {
 });
 
 
-/*
-  Define the relevant constants and variables. Please be aware that the const is a
-  Mozilla-specific extension, it is not supported by IE.  see
-  https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Statements/Const
-  for details.
-*/
+jetpack.tabs.onReady(function () {
+    let currentUrl = jetpack.tabs.focused.contentWindow.location.href;
+
+    if (currentUrl.indexOf('ClozeFoxTestStrategy=#prepositionTest') > 0) {
+	runClozeFox(STRATEGY_PREPOSITION);
+    }
+
+    if (currentUrl.indexOf('ClozeFoxTestStrategy=#randomTest') > 0) {
+	runClozeFox(STRATEGY_RANDOM);
+    }
+});
 
 /*
-  Test type constants and variables
-*/
+ *  Define the relevant constants and variables. Please be aware that the const is a
+ *  Mozilla-specific extension, it is not supported by IE.  see
+ *  https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Statements/Const
+ *  for details.
+ */
+
+/*
+ * Test type constants and variables
+ */
 const STRATEGY_RANDOM       = 1000;
 const STRATEGY_PREPOSITION  = 1100;
 
@@ -100,23 +119,23 @@ testStrategyToString[STRATEGY_PREPOSITION] = "#prepositionTest";
 
 
 /*
-  Language constants
-*/
+ *  Language constants
+ */
 const ENGLISH               = 1000;
 const DUTCH                 = 2000;
 const UNKNOWN_LANGUAGE      = 9999;
 
 /*
- Page type constants
-*/
+ * Page type constants
+ */
 const SIMPLE_ENGLISH        = 1000;
 const NORMAL_ENGLISH        = 1100;
 const NORMAL_DUTCH          = 2000;
 const SIMPLE_DUTCH          = 2100;
 
 /*
-  Language-specific constants
-*/
+ * Language-specific constants
+ */
 
 const englishFrequencyList = ["the", "of", "and", "a", "in", "to", "it", "is", "to", "was", 
 			    "I", "for", "that", "you", "he", "be", "with", "on", "by", "at"];
@@ -137,13 +156,17 @@ const englishPrepositionList = ["aboard", "about", "above", "across", "after", "
 
 
 /*
-http://en.wiktionary.org/wiki/Wiktionary:Frequency_lists#Dutch
-*/
+ *
+ * http://en.wiktionary.org/wiki/Wiktionary:Frequency_lists#Dutch
+ *
+ */
 const dutchFrequencyList =  ["de", "en", "het", "van", "ik", "te", "dat", "die", "in", "een",
 			     "hij", "niet", "zijn"];
 /*
-http://en.wiktionary.org/wiki/Category:Dutch_prepositions
-*/
+ *
+ * http://en.wiktionary.org/wiki/Category:Dutch_prepositions
+ *
+ */
 const dutchPrepositionList = ["aan", "achter", "bij", "binnen", "dan", "door", "in", "langs", 
 			      "met", "middels", "min", "na", "naar", "naast", "om", "onder", 
 			      "op", "over", "ongeveer", "per", "rond", "sinds", "tegen", 
@@ -151,10 +174,16 @@ const dutchPrepositionList = ["aan", "achter", "bij", "binnen", "dan", "door", "
 			      "via", "voor", "zonder"];
 
 
-// Used for notifications
-const myIcon ="http://dev.linguapolis.be/jetpack/images/uaLogo.ico";
+const myIcon ="http://dev.linguapolis.be/jetpack/images/uaLogo.ico"; // Used for notifications
 
 
+/**
+ *
+ * Runs the language test on the current page
+ * @param {Number} strategy This is a string parameter
+ * @returns 
+ *
+ */
 function runClozeFox(strategy) { 
     var MIN_TEXT_LENGTH = 90;
     results = [];
@@ -221,6 +250,15 @@ function runClozeFox(strategy) {
     }     
 }
 
+
+/**
+ *
+ * Calculates the word frequency in a given text
+ * @param {String} txt This is a string of characters
+ * @returns frequencyList, an array that contains the words and their frequencies
+ * @type Array
+ *
+ */
 function calculateFrequencyList(txt) {
     var frequencyList = new Array();
     var listOfWords = txt.toLowerCase().split(/[\s,.]+/);
@@ -243,6 +281,14 @@ function calculateFrequencyList(txt) {
     return frequencyList;
 }
 
+/**
+ *
+ * Detects the language based on an array of words and frequencies
+ * @param {Array} fListArray This is an array of words and frequencies
+ * @returns resultLanguage The integer code for the language
+ * @type Number
+ *
+ */
 function detectLanguage(fListArray) {
     var numOfMatchingWords = 0;
     var resultLanguage = UNKNOWN_LANGUAGE;
@@ -290,6 +336,14 @@ function detectLanguage(fListArray) {
     return resultLanguage;
 }
 
+/**
+ *
+ * Creates the test for a given document, this is actually a dispatch function.
+ * @param {Object} doc
+ * @param {Number} strategy 
+ * @param {Number} language
+ *
+ */
 function createTest(doc, strategy, language) {
     switch (strategy) {
 	case STRATEGY_RANDOM:
@@ -303,6 +357,13 @@ function createTest(doc, strategy, language) {
     }
 }
 
+/**
+ *
+ * Creates the random test for a given document
+ * @param {Object} doc
+ * @param {Number} language
+ *
+ */
 function createRandomTest(doc, language) {
     var idCounter = 1;    
     $(doc).find("[id^=clozefox_paragraph]").each(function (index) {
@@ -329,6 +390,15 @@ function createRandomTest(doc, language) {
     });
 }
 
+
+/**
+ *
+ * Return an array of random elements constructed from the given array.
+ * @param {Number} numElements
+ * @returns newArray This is the new random array
+ * @type Array
+ *
+ */
 Array.prototype.getRandomElements =  function(numElements) {
     var startRange = 0;
     var newArray = [];
@@ -343,10 +413,23 @@ Array.prototype.getRandomElements =  function(numElements) {
     return newArray;
 }
 
+/**
+ *
+ * Checks if a given element exists in an array.
+ * @param {Object} obj
+ * @returns true if element exists otherwise false
+ * @type Boolean
+ *
+ */
 Array.prototype.has = function(obj) {
     return this.indexOf(obj) >= 0;
 } 
 
+/**
+ *
+ * Shuffles a given array
+ *
+ */
 Array.prototype.shuffle = function() {
 /*
   Fisher Yates shuffle algorithm adapted from
@@ -366,6 +449,14 @@ Array.prototype.shuffle = function() {
    }
 }
 
+
+/**
+ *
+ * Creates the preposition test for a given document
+ * @param {Object} doc
+ * @param {Number} language
+ *
+ */
 function createPrepositionTest(doc, language) {
     var idCounter = 1;   
     var selectHeader = "<select id=\"clozefox_answer\">";
@@ -446,6 +537,11 @@ function createPrepositionTest(doc, language) {
     });
 }
 
+/**
+ *
+ * Calculates the score of the current test
+ *
+ */
 function calculateScore() {
     var doc = jetpack.tabs.focused.contentDocument;
     var numCorrectAnswer = 0;
@@ -532,6 +628,13 @@ function calculateScore() {
     }
 }
 
+
+/**
+ *
+ * Displays the details of test scores in the slide bar
+ * @param {Object} content
+ *
+ */
 function displayScoreDetails(content) {    
 
     let toShow = '';
@@ -557,6 +660,12 @@ function displayScoreDetails(content) {
     }
 }
 
+/**
+ *
+ * Displays the statistics  test scores in the slide bar
+ * @param {Object} statsDiv
+ *
+ */
 function displayScoreStats(statsDiv) {    
 
     let toShow = '';
@@ -596,13 +705,17 @@ function displayScoreStats(statsDiv) {
 	toShow += 'Average percentage of success = %' + (totalScore / numberOfTestsDone) + '</p>';
 
 	toShow += '<p> <img src="http://chart.apis.google.com/chart?chs=300x100&amp;chf=a,s,EFEFEFF0&amp;chd=t:' + (totalRandomTestScore / numberOfRandomTests) + ',' + (totalScore / numberOfTestsDone) + '&amp;cht=p3&amp;chl=Random|Preposition" alt="Sample chart"> </p>';
-	toShow += "<hr/>";
 
 	statsDiv.attr('innerHTML', toShow);
     }
 }
 
 
+/**
+ *
+ * Deletes the score details storage permanently
+ *
+ */
 function deleteScoreDetails() {
     let scoreDetails = myStorage.scoreDetails;
     scoreDetails = null;
@@ -610,6 +723,12 @@ function deleteScoreDetails() {
     myStorage.sync();
 }
 
+/**
+ *
+ * Suggests a page for easy start up.
+ * @param {Number} pageType This is the integer code for the page type
+ *
+ */
 function suggestPage(pageType) {
     var tagList = "clozefox";
     var url = "http://feeds.delicious.com/v2/json/YAFZ/";    
@@ -643,6 +762,11 @@ function suggestPage(pageType) {
     enableTestsAndDisableCalculateScore();
 }
 
+/**
+ *
+ * Tests the jQueryUI functionality by displaying a modal dialog box
+ *
+ */
 function testJQ() {
     var doc = jetpack.tabs.focused.contentDocument;
     var win = jetpack.tabs.focused.contentWindow;
@@ -683,6 +807,11 @@ function testJQ() {
     });
 }
 
+/**
+ *
+ * The context menu definition
+ *
+ */
 var clozeFoxMenu =  new jetpack.Menu([
     { 
 	label: "Random Test", 
@@ -737,6 +866,16 @@ var clozeFoxMenu =  new jetpack.Menu([
     },
 
     null,
+
+    {
+	label: "Copy the test to clipboard",
+	command: function () {
+	    let currentUrl = jetpack.tabs.focused.contentWindow.location.href;
+	    currentUrl += '?ClozeFoxTestStrategy=' +  testStrategyToString[testStrategy];
+	    jetpack.clipboard.set(currentUrl);
+	    jetpack.notifications.show("The current test is copied to your clipboard. You can paste it into your mail and share it.");
+	}
+    },
 
     {
 	label: "Delete score details",
