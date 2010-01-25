@@ -880,8 +880,16 @@ var clozeFoxMenu =  new jetpack.Menu([
     {
 	label: "Delete score details",
 	command: function () {
-	    jetpack.notifications.show("Deleting Score Deails!");
-	    deleteScoreDetails();
+	    let currentWindow = jetpack.tabs.focused.contentWindow
+	    let confirmed = false;
+	    confirmed =  currentWindow.confirm('Are you sure to delete your previous scores?');
+	    if (confirmed) {
+		jetpack.notifications.show("Score details are deleted!");
+		deleteScoreDetails();
+	    }
+	    else {
+		return false;
+	    }
 	}
     },
 
