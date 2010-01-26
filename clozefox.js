@@ -54,15 +54,16 @@ var myStorage = jetpack.storage.simple;
 var cb; // used for slide later, be careful about this
 
 var initialContent = '<style type="text/css"> \
-div#content {background-color: white; height: 400px; padding-left: 3px; overflow: auto} \
-div#stats {background-color: white; height: 300px; padding-left: 3px; overflow: auto} \
-h4 {font-family: Arial;} \
+div#content {background-color: white; height: 400px; padding-left: 3px; overflow: auto;} \
+div#stats {background-color: white; height: 300px; padding-left: 3px; overflow: auto;-moz-border-radius: 20px} \
+div#summaryTitle {background-color: #ECA30F; padding-left: 3px;-moz-border-radius: 20px} \
+h4 {font-family: Arial} \
 p.score {font-family: Verdana; font-size: 12px;} \
 </style> \
-<h4>ClozeFox Summary Statistics</h4> \
+<div id="summaryTitle"><h4>ClozeFox Summary Statistics</h4></div> \
 <div id="stats"></div> \
-<h4>ClozeFox Test Scores</h4> \
-<div id="content"></div>';
+<div id="summaryTitle"><h4>ClozeFox Test Scores</h4></div> \
+<div id="content"></div> ';
 
 jetpack.future.import('slideBar'); 
 
@@ -760,8 +761,10 @@ function displayScoreStats(statsDiv) {
 	toShow += '<p class="score">Number of preposition tests done = ' + numberOfPrepositionTests + '<br/>';
 	toShow += 'Average percentage of success = %' + (totalPrepositionTestScore / numberOfPrepositionTests)+ '</p>';
 
-	toShow += '<p class="score">Total number of tests done = ' + numberOfTestsDone + '<br/>';
-	toShow += 'Average percentage of success = %' + (totalScore / numberOfTestsDone) + '</p>';
+	let totalAveragePercentage = (totalScore / numberOfTestsDone);
+	totalAveragePercentage = Math.round(totalAveragePercentage * 100) / 100; //round percentage to two decimals
+	toShow += '<p class="score">Total number of tests done = ' + numberOfTestsDone + '<br/>';	
+	toShow += 'Average percentage of success = %' + totalAveragePercentage + '</p>';
 
 	toShow += '<p> <img src="http://chart.apis.google.com/chart?chs=300x100&amp;chf=a,s,EFEFEFF0&amp;chd=t:' + (totalRandomTestScore / numberOfRandomTests) + ',' + (totalPrepositionTestScore / numberOfPrepositionTests) + '&amp;cht=p3&amp;chl=Random|Preposition" alt="Sample chart"> </p>';
 
