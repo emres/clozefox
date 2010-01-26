@@ -1,14 +1,16 @@
 /*
  * ClozeFox Firefox Jetpack Plug-in  
  *
- * developed by Emre Sevinc and Jozef Colpaert at University of Antwerp
+ * developed by Emre Sevinc and Jozef Colpaert at Linguapolis Institute, 
+ * University of Antwerp
+ *
+ * http://www.linguapolis.be/
  * http://www.ua.ac.be
  *
- * License: GNU GPL v3 and the X11/MIT license
+ * License: GNU GPL v3 
  * See http://www.gnu.org/licenses/gpl.html
  *
  */
-
 
 var manifest = {
     firstRunPage: 'http://dev.linguapolis.be/jetpack/firstRun.html',
@@ -100,14 +102,16 @@ jetpack.tabs.onReady(function () {
 });
 
 /*
- *  Define the relevant constants and variables. Please be aware that the const is a
- *  Mozilla-specific extension, it is not supported by IE.  see
- *  https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Statements/Const
- *  for details.
+ * Define the relevant constants and variables. Please be aware that the const is a
+ * Mozilla-specific extension, it is not supported by IE.  see
+ * https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Statements/Const
+ * for details.
  */
 
 /*
+ *
  * Test type constants and variables
+ *
  */
 const STRATEGY_RANDOM       = 1000;
 const STRATEGY_PREPOSITION  = 1100;
@@ -119,14 +123,18 @@ testStrategyToString[STRATEGY_PREPOSITION] = "#prepositionTest";
 
 
 /*
- *  Language constants
+ *
+ * Language constants
+ *
  */
 const ENGLISH               = 1000;
 const DUTCH                 = 2000;
 const UNKNOWN_LANGUAGE      = 9999;
 
 /*
+ *
  * Page type constants
+ *
  */
 const SIMPLE_ENGLISH        = 1000;
 const NORMAL_ENGLISH        = 1100;
@@ -134,7 +142,9 @@ const NORMAL_DUTCH          = 2000;
 const SIMPLE_DUTCH          = 2100;
 
 /*
+ *
  * Language-specific constants
+ *
  */
 
 const englishFrequencyList = ["the", "of", "and", "a", "in", "to", "it", "is", "to", "was", 
@@ -173,14 +183,18 @@ const dutchPrepositionList = ["aan", "achter", "bij", "binnen", "dan", "door", "
 			      "tot", "tijdens", "tussen", "uit", "van", "vanaf", "vanuit", 
 			      "via", "voor", "zonder"];
 
-
-const myIcon ="http://dev.linguapolis.be/jetpack/images/uaLogo.ico"; // Used for notifications
+/*
+ *
+ * Icon used for notifications
+ *
+ */
+const myIcon ="http://dev.linguapolis.be/jetpack/images/uaLogo.ico"; 
 
 
 /**
  *
  * Runs the language test on the current page
- * @param {Number} strategy This is a string parameter
+ * @param {Number} strategy This is the named constant for test strategy
  * @returns 
  *
  */
@@ -230,14 +244,12 @@ function runClozeFox(strategy) {
     var pageLanguage = detectLanguage(fListArray);
     switch (pageLanguage) {
 	case ENGLISH:
-	  //enableCalculateScore();
 	  disableTestsAndEnableCalculateScore();
 	  createTest(doc, strategy, ENGLISH);
 	  languageTestUrl = jetpack.tabs.focused.contentWindow.location.href;
 	  break;
 
 	case DUTCH:
-	  //enableCalculateScore();
 	  disableTestsAndEnableCalculateScore();
 	  createTest(doc, strategy, DUTCH);
           languageTestUrl = jetpack.tabs.focused.contentWindow.location.href;
@@ -365,30 +377,77 @@ function createTest(doc, strategy, language) {
  *
  */
 function createRandomTest(doc, language) {
-    var idCounter = 1;    
+    var idCounter = 1;   
+    var selectHeader = "<select id=\"clozefox_answer\">";
+    var selectFooter = "</select>"
+    var randomDistractors = englishFrequencyList.getRandomElements(3);
+ 
     $(doc).find("[id^=clozefox_paragraph]").each(function (index) {
 	var textStr = $(this).text();
-	var listOfWords = textStr.split(" ");
-	
-	var l = listOfWords.length;
-	for (var i = 0; i < l; i++) {
+	var listOfWords = textStr.split(" ");		
 
-	    if (idCounter > 50) { // don't try process every word on the page
-		break;
-	    }
+	    switch (language) {		
+		case ENGLISH:
+		  var l = listOfWords.length;
+		  for (var i = 0; i < l; i++) {		    
+		      if (idCounter > 20) {      // don't try to process every word on the page
+			  break;	    
+		      }
+		    
+		      if ((i % 7) === 0) {
+			  currentWord = listOfWords[i];
 
-	    if ((i % 7) === 0) {
-		currentWord = listOfWords[i];
-		listOfWords[i] = "<select id=\"clozefox_answer\"> <option value=\"wrongAnswer\">distractor</option>";
-		listOfWords[i] += "<option value=\"trueAnswer\">" + currentWord + "</option></select>";
-		idCounter++;
+			  finalWordList = englishFrequencyList.filter(function (element) {return element !== currentWord;});
+			  randomDistractors = finalWordList.getRandomElements(3);
+		      
+			  var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
+					  "<option value=\"wrongAnswer\">" + randomDistractors[1] + "</option>",
+					  "<option value=\"wrongAnswer\">" + randomDistractors[2] + "</option>",
+					  "<option value=\"trueAnswer\">" + currentWord + "</option>"];			  
+			  tmpArray.shuffle();
+			  tmpArray.push("<option value=\"wrongAnswer\">   </option>")
+			  tmpArray.reverse();
+			  listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;		    
+			  idCounter++;
+		      }
+		  }
+	    	  break;
+
+	        case DUTCH:
+		  var l = listOfWords.length;
+		  for (var i = 0; i < l; i++) {		    
+		      if (idCounter > 20) {     // don't try to process every word on the page
+			  break;	    
+		      }
+
+		      if ((i % 7) === 0) {
+			  currentWord = listOfWords[i];
+			  
+			  finalWordList = dutchFrequencyList.filter(function (element) {return element !== currentWord;});
+			  randomDistractors = finalWordList.getRandomElements(3);			
+			  
+			  var tmpArray = ["<option value=\"wrongAnswer\">" + randomDistractors[0] + "</option>",
+					  "<option value=\"wrongAnswer\">" + randomDistractors[1] + "</option>",
+					  "<option value=\"wrongAnswer\">" + randomDistractors[2] + "</option>",
+					  "<option value=\"trueAnswer\">" + currentWord + "</option>"];		      
+			  tmpArray.shuffle();
+			  tmpArray.push("<option value=\"wrongAnswer\">   </option>")
+			  tmpArray.reverse();
+			  listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;
+			  idCounter++;
+		      }
+		  }
+		  break;
+		
+		default:
+		  return false;		
 	    }
-	}
 
 	textStr = listOfWords.join(" ");
 	$(this).html(textStr);
     });
 }
+
 
 
 /**
@@ -632,7 +691,7 @@ function calculateScore() {
 /**
  *
  * Displays the details of test scores in the slide bar
- * @param {Object} content
+ * @param {Object} content This is part of content marked by the plug in
  *
  */
 function displayScoreDetails(content) {    
@@ -704,7 +763,7 @@ function displayScoreStats(statsDiv) {
 	toShow += '<p class="score">Total number of tests done = ' + numberOfTestsDone + '<br/>';
 	toShow += 'Average percentage of success = %' + (totalScore / numberOfTestsDone) + '</p>';
 
-	toShow += '<p> <img src="http://chart.apis.google.com/chart?chs=300x100&amp;chf=a,s,EFEFEFF0&amp;chd=t:' + (totalRandomTestScore / numberOfRandomTests) + ',' + (totalScore / numberOfTestsDone) + '&amp;cht=p3&amp;chl=Random|Preposition" alt="Sample chart"> </p>';
+	toShow += '<p> <img src="http://chart.apis.google.com/chart?chs=300x100&amp;chf=a,s,EFEFEFF0&amp;chd=t:' + (totalRandomTestScore / numberOfRandomTests) + ',' + (totalPrepositionTestScore / numberOfPrepositionTests) + '&amp;cht=p3&amp;chl=Random|Preposition" alt="Sample chart"> </p>';
 
 	statsDiv.attr('innerHTML', toShow);
     }
@@ -873,7 +932,8 @@ var clozeFoxMenu =  new jetpack.Menu([
 	    let currentUrl = jetpack.tabs.focused.contentWindow.location.href;
 	    currentUrl += '?ClozeFoxTestStrategy=' +  testStrategyToString[testStrategy];
 	    jetpack.clipboard.set(currentUrl);
-	    jetpack.notifications.show("The current test is copied to your clipboard. You can paste it into your mail and share it.");
+	    let mBody = "The current test is copied to your clipboard. You can paste it into your mail and share it.";
+	    jetpack.notifications.show({title: "Clipboard", body: mBody, icon: myIcon});
 	}
     },
 
@@ -916,19 +976,11 @@ jetpack.menu.context.page.add({
 });
 
 
-function enableCalculateScore() {
-    clozeFoxMenu.beforeShow = function () {
-	clozeFoxMenu.item("Calculate Score").disabled = false;
-    };
-}
-
-
-function disableCalculateScore() {
-    clozeFoxMenu.beforeShow = function () {
-	clozeFoxMenu.item("Calculate Score").disabled = true;
-    };
-}
-
+/**
+ *
+ * Enables the test menu items and disables Calculate Score menu item
+ *
+ */
 function enableTestsAndDisableCalculateScore() {
     clozeFoxMenu.beforeShow = function () {
 	clozeFoxMenu.item("Random Test").disabled = false;
@@ -937,7 +989,11 @@ function enableTestsAndDisableCalculateScore() {
     };
 }
 
-
+/**
+ *
+ * Enables the Calculate Score menu item and disables the test menu items
+ *
+ */
 function disableTestsAndEnableCalculateScore() {
     clozeFoxMenu.beforeShow = function () {
 	clozeFoxMenu.item("Random Test").disabled = true;
@@ -949,17 +1005,19 @@ function disableTestsAndEnableCalculateScore() {
 
 jetpack.tabs.onClose(function () {
     if (languageTestUrl === jetpack.tabs.focused.contentWindow.location.href) {
-	disableCalculateScore();
-	enableTests();
+	enableTestsAndDisableCalculateScore();
     }
 });
 
 
-//
-// Dictionary Jetpack
-//
-// http://jetpackgallery.mozillalabs.com/jetpacks/52
-//
+/**
+ *
+ *
+ * Dictionary Jetpack
+ *
+ * http://jetpackgallery.mozillalabs.com/jetpacks/52
+ *
+*/
 jetpack.statusBar.append({
     html: '<span style="background-color: yellow;">define</span>',
     width:55,
