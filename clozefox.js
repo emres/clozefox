@@ -32,14 +32,14 @@ var manifest = {
     ]
 };
 
-/*
+/**
  * Define the relevant constants and variables. Please be aware that the const is a
  * Mozilla-specific extension, it is not supported by IE.  see
  * https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Statements/Const
  * for details.
  */
 
-/*
+/**
  *
  * Test type constants and variables
  *
@@ -53,7 +53,7 @@ testStrategyToString[STRATEGY_RANDOM] = "#randomTest";
 testStrategyToString[STRATEGY_PREPOSITION] = "#prepositionTest";
 
 
-/*
+/**
  *
  * Language constants
  *
@@ -62,7 +62,7 @@ const ENGLISH               = 1000;
 const DUTCH                 = 2000;
 const UNKNOWN_LANGUAGE      = 9999;
 
-/*
+/**
  *
  * Page type constants
  *
@@ -72,7 +72,7 @@ const NORMAL_ENGLISH        = 1100;
 const NORMAL_DUTCH          = 2000;
 const SIMPLE_DUTCH          = 2100;
 
-/*
+/**
  *
  * Language-specific constants
  *
@@ -96,14 +96,14 @@ const englishPrepositionList = ["aboard", "about", "above", "across", "after", "
 				"upon", "versus", "via", "with", "within", "without"];
 
 
-/*
+/**
  *
  * http://en.wiktionary.org/wiki/Wiktionary:Frequency_lists#Dutch
  *
  */
 const dutchFrequencyList =  ["de", "en", "het", "van", "ik", "te", "dat", "die", "in", "een",
 			     "hij", "niet", "zijn"];
-/*
+/**
  *
  * http://en.wiktionary.org/wiki/Category:Dutch_prepositions
  *
@@ -114,7 +114,7 @@ const dutchPrepositionList = ["aan", "achter", "bij", "binnen", "dan", "door", "
 			      "tot", "tijdens", "tussen", "uit", "van", "vanaf", "vanuit", 
 			      "via", "voor", "zonder"];
 
-/*
+/**
  *
  * Icon used for notifications
  *
@@ -126,7 +126,7 @@ jetpack.future.import("storage.settings");
 jetpack.future.import("menu");
 jetpack.future.import('clipboard');
 
-/*
+/**
  *
  * Initialize the JetPack storage system and bind myStorage to it.
  *
@@ -135,7 +135,7 @@ jetpack.future.import('clipboard');
 jetpack.future.import("storage.simple"); 
 var myStorage = jetpack.storage.simple; 
 
-/*
+/**
  *
  * Initialize the JetPack slidebar system and activate it.
  *
@@ -219,7 +219,7 @@ function runClozeFox(strategy) {
 	fListArray.push([item, fList[item]]);
     }   
 
-    fListArray.sort(function (x, y) {return x[1] - y[1]});
+    fListArray.sort(function (x, y) {return x[1] - y[1];});
     fListArray.reverse();
 
     var pageLanguage = detectLanguage(fListArray);
@@ -237,7 +237,7 @@ function runClozeFox(strategy) {
 	  break;
 
 	default:
-	  var myBody = "Oops! Sorry, ClozeFox could not find the main text of the page or the language of the page could not be detected." 
+	  var myBody = "Oops! Sorry, ClozeFox could not find the main text of the page or the language of the page could not be detected.";
 	  myBody     += " Maybe it can suggest you a new page if you right-click on the current page and select Suggest a Page";
 	  jetpack.notifications.show({title: "Language error", body: myBody, icon: myIcon});
     }     
@@ -451,7 +451,7 @@ Array.prototype.getRandomElements =  function(numElements) {
     }
 
     return newArray;
-}
+};
 
 /**
  *
@@ -463,7 +463,7 @@ Array.prototype.getRandomElements =  function(numElements) {
  */
 Array.prototype.has = function(obj) {
     return this.indexOf(obj) >= 0;
-} 
+};
 
 /**
  *
@@ -489,7 +489,7 @@ Array.prototype.shuffle = function() {
      this[i] = tempj;
      this[j] = tempi;
    }
-}
+};
 
 
 /**
@@ -843,7 +843,7 @@ function printAboutClozeFox() {
 
 		script.innerHTML = 'var myDialogFunc = function () {';
 		script.innerHTML += '$("<div id=dialog title=\\"About ClozeFox\\"> <p>ClozeFox Firefox Jetpack Plug-in</p> <p>developed by Emre Sevinc and Jozef Colpaert at University of Antwerp</p> <p> <a href=\\"http://www.ua.ac.be\\">http://www.ua.ac.be</a> </p> </div>").appendTo("body");';
-		script.innerHTML += '$("#dialog").dialog({'
+		script.innerHTML += '$("#dialog").dialog({';
 		script.innerHTML += '      bgiframe: true, width: 350, height: 300, modal: true, draggable: false';
 		script.innerHTML += '  });';
 		script.innerHTML += '};';		
