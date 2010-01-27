@@ -32,76 +32,6 @@ var manifest = {
     ]
 };
 
-jetpack.future.import("storage.settings");
-jetpack.future.import("menu");
-jetpack.future.import('clipboard');
-
-/*
- *
- * Initialize the JetPack storage system and bind myStorage to it.
- *
- */
-
-jetpack.future.import("storage.simple"); 
-var myStorage = jetpack.storage.simple; 
-
-/*
- *
- * Initialize the JetPack slidebar system and activate it.
- *
- */
-
-var cb; // used for slide later, be careful about this
-
-var initialContent = '<style type="text/css"> \
-div#content {background-color: white; height: 400px; padding-left: 3px; overflow: auto;} \
-div#stats {background-color: white; height: 300px; padding-left: 3px; overflow: auto;-moz-border-radius: 20px} \
-div#summaryTitle {background-color: #ECA30F; padding-left: 3px;-moz-border-radius: 20px} \
-h4 {font-family: Arial} \
-p.score {font-family: Verdana; font-size: 12px;} \
-</style> \
-<div id="summaryTitle"><h4>ClozeFox Summary Statistics</h4></div> \
-<div id="stats"></div> \
-<div id="summaryTitle"><h4>ClozeFox Test Scores</h4></div> \
-<div id="content"></div> ';
-
-jetpack.future.import('slideBar'); 
-
-jetpack.slideBar.append({
-    width: 350,
-    icon: 'http://dev.linguapolis.be/jetpack/images/ua_logo.png',
-    html: initialContent,
-    persist: true,
-    onReady: function(slide) {
-	cb = slide;
-    },
-    onSelect: function(slide) {
-	displayScoreDetails($(slide.contentDocument).find("#content"));
-	displayScoreStats($(slide.contentDocument).find("#stats"));
-    }
-});
-
-jetpack.tabs.onFocus(function () {
-  let scoreDetails = jetpack.storage.simple.scoreDetails;
-  for (let i = 0; i < scoreDetails.length; i++) {
-    if (this.url == scoreDetails[i].site)
-      cb.notify();
-  }
-});
-
-
-jetpack.tabs.onReady(function () {
-    let currentUrl = jetpack.tabs.focused.contentWindow.location.href;
-
-    if (currentUrl.indexOf('ClozeFoxTestStrategy=#prepositionTest') > 0) {
-	runClozeFox(STRATEGY_PREPOSITION);
-    }
-
-    if (currentUrl.indexOf('ClozeFoxTestStrategy=#randomTest') > 0) {
-	runClozeFox(STRATEGY_RANDOM);
-    }
-});
-
 /*
  * Define the relevant constants and variables. Please be aware that the const is a
  * Mozilla-specific extension, it is not supported by IE.  see
@@ -190,6 +120,56 @@ const dutchPrepositionList = ["aan", "achter", "bij", "binnen", "dan", "door", "
  *
  */
 const myIcon ="http://dev.linguapolis.be/jetpack/images/uaLogo.ico"; 
+
+
+jetpack.future.import("storage.settings");
+jetpack.future.import("menu");
+jetpack.future.import('clipboard');
+
+/*
+ *
+ * Initialize the JetPack storage system and bind myStorage to it.
+ *
+ */
+
+jetpack.future.import("storage.simple"); 
+var myStorage = jetpack.storage.simple; 
+
+/*
+ *
+ * Initialize the JetPack slidebar system and activate it.
+ *
+ */
+
+var cb; // used for slide later, be careful about this
+
+var initialContent = '<style type="text/css"> \
+div#content {background-color: white; height: 400px; padding-left: 3px; overflow: auto;} \
+div#stats {background-color: white; height: 300px; padding-left: 3px; overflow: auto;-moz-border-radius: 20px} \
+div#summaryTitle {background-color: #ECA30F; padding-left: 3px;-moz-border-radius: 20px} \
+h4 {font-family: Arial} \
+p.score {font-family: Verdana; font-size: 12px;} \
+</style> \
+<div id="summaryTitle"><h4>ClozeFox Summary Statistics</h4></div> \
+<div id="stats"></div> \
+<div id="summaryTitle"><h4>ClozeFox Test Scores</h4></div> \
+<div id="content"></div> ';
+
+jetpack.future.import('slideBar'); 
+
+jetpack.slideBar.append({
+    width: 350,
+    icon: 'http://dev.linguapolis.be/jetpack/images/ua_logo.png',
+    html: initialContent,
+    persist: true,
+    onReady: function(slide) {
+	cb = slide;
+    },
+    onSelect: function(slide) {
+	displayScoreDetails($(slide.contentDocument).find("#content"));
+	displayScoreStats($(slide.contentDocument).find("#stats"));
+    }
+});
 
 
 /**
@@ -312,7 +292,7 @@ function detectLanguage(fListArray) {
     //
     numOfMatchingWords = 0;
     fListArrayLength = fListArray.length;
-    englishFrequencyListLength = englishFrequencyList.length
+    englishFrequencyListLength = englishFrequencyList.length;
     for (var i = 0; i < fListArrayLength; i++) {
 	for (var j = 0; j < englishFrequencyListLength; j++) {
 	    if (fListArray[i][0] == englishFrequencyList[j]) {
@@ -331,7 +311,7 @@ function detectLanguage(fListArray) {
     //
     numOfMatchingWords = 0; 
     fListArrayLength = fListArray.length;
-    dutchFrequencyListLength = dutchFrequencyList.length
+    dutchFrequencyListLength = dutchFrequencyList.length;
     for (var i = 0; i < fListArrayLength; i++) {
 	for (var j = 0; j < dutchFrequencyListLength; j++) {
 	    if (fListArray[i][0] == dutchFrequencyList[j]) {
@@ -380,7 +360,7 @@ function createTest(doc, strategy, language) {
 function createRandomTest(doc, language) {
     var idCounter = 1;   
     var selectHeader = "<select id=\"clozefox_answer\">";
-    var selectFooter = "</select>"
+    var selectFooter = "</select>";
     var randomDistractors = englishFrequencyList.getRandomElements(3);
  
     $(doc).find("[id^=clozefox_paragraph]").each(function (index) {
@@ -406,7 +386,7 @@ function createRandomTest(doc, language) {
 					  "<option value=\"wrongAnswer\">" + randomDistractors[2] + "</option>",
 					  "<option value=\"trueAnswer\">" + currentWord + "</option>"];			  
 			  tmpArray.shuffle();
-			  tmpArray.push("<option value=\"wrongAnswer\">   </option>")
+			  tmpArray.push("<option value=\"wrongAnswer\">   </option>");
 			  tmpArray.reverse();
 			  listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;		    
 			  idCounter++;
@@ -432,7 +412,7 @@ function createRandomTest(doc, language) {
 					  "<option value=\"wrongAnswer\">" + randomDistractors[2] + "</option>",
 					  "<option value=\"trueAnswer\">" + currentWord + "</option>"];		      
 			  tmpArray.shuffle();
-			  tmpArray.push("<option value=\"wrongAnswer\">   </option>")
+			  tmpArray.push("<option value=\"wrongAnswer\">   </option>");
 			  tmpArray.reverse();
 			  listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;
 			  idCounter++;
@@ -499,8 +479,10 @@ Array.prototype.shuffle = function() {
   It modifies the array it acts upon, so use with care.
 */
   var i = this.length;
-  if ( i == 0 ) return false;
-  while ( --i ) {
+  if (i === 0) {
+      return false;
+  }
+  while (--i) {
      var j = Math.floor( Math.random() * ( i + 1 ) );
      var tempi = this[i];
      var tempj = this[j];
@@ -520,7 +502,7 @@ Array.prototype.shuffle = function() {
 function createPrepositionTest(doc, language) {
     var idCounter = 1;   
     var selectHeader = "<select id=\"clozefox_answer\">";
-    var selectFooter = "</select>"
+    var selectFooter = "</select>";
     var randomDistractors = englishPrepositionList.getRandomElements(3);
  
     $(doc).find("[id^=clozefox_paragraph]").each(function (index) {
@@ -553,7 +535,7 @@ function createPrepositionTest(doc, language) {
 					  "<option value=\"trueAnswer\">" + currentWord + "</option>"];
 		
 			  tmpArray.shuffle();
-			  tmpArray.push("<option value=\"wrongAnswer\">   </option>")
+			  tmpArray.push("<option value=\"wrongAnswer\">   </option>");
 			  tmpArray.reverse();
 			  listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;		    
 			  idCounter++;
@@ -580,7 +562,7 @@ function createPrepositionTest(doc, language) {
 					  "<option value=\"trueAnswer\">" + currentWord + "</option>"];
 		
 			  tmpArray.shuffle();
-			  tmpArray.push("<option value=\"wrongAnswer\">   </option>")
+			  tmpArray.push("<option value=\"wrongAnswer\">   </option>");
 			  tmpArray.reverse();
 			  listOfWords[i] = selectHeader + tmpArray.join('') + selectFooter;
 			  idCounter++;
@@ -632,7 +614,7 @@ function calculateScore() {
 	numGaps++;
     });
 
-    score = numCorrectAnswer + " out of " + numGaps
+    score = numCorrectAnswer + " out of " + numGaps;
     percentage = (numCorrectAnswer * 100) / numGaps;
     percentage = Math.round(percentage * 100) / 100; //round percentage to two decimals
     var mBody = numCorrectAnswer + " out of " + numGaps + "! ";
@@ -755,11 +737,15 @@ function displayScoreStats(statsDiv) {
 	                           .reduceRight(function(x, y) {return x + y.percentage;}, 0);
  
 
+	let randomAveragePercentage = (totalRandomTestScore / numberOfRandomTests);
+	randomAveragePercentage = Math.round(randomAveragePercentage * 100) / 100; //round percentage to two decimals
 	toShow += '<p class="score">Number of random tests done = ' + numberOfRandomTests + '<br/>';
-	toShow += 'Average percentage of success = %' + (totalRandomTestScore / numberOfRandomTests)  + '</p>';
+	toShow += 'Average percentage of success = %' + randomAveragePercentage + '</p>';
 
+	let prepositionAveragePercentage = (totalPrepositionTestScore / numberOfPrepositionTests);
+	prepositionAveragePercentage = Math.round(prepositionAveragePercentage * 100) / 100; //round percentage to two decimals
 	toShow += '<p class="score">Number of preposition tests done = ' + numberOfPrepositionTests + '<br/>';
-	toShow += 'Average percentage of success = %' + (totalPrepositionTestScore / numberOfPrepositionTests)+ '</p>';
+	toShow += 'Average percentage of success = %' + prepositionAveragePercentage + '</p>';
 
 	let totalAveragePercentage = (totalScore / numberOfTestsDone);
 	totalAveragePercentage = Math.round(totalAveragePercentage * 100) / 100; //round percentage to two decimals
@@ -943,7 +929,7 @@ var clozeFoxMenu =  new jetpack.Menu([
     {
 	label: "Delete score details",
 	command: function () {
-	    let currentWindow = jetpack.tabs.focused.contentWindow
+	    let currentWindow = jetpack.tabs.focused.contentWindow;
 	    let confirmed = false;
 	    confirmed =  currentWindow.confirm('Are you sure to delete your previous scores?');
 	    if (confirmed) {
@@ -1006,6 +992,44 @@ function disableTestsAndEnableCalculateScore() {
 }
 
 
+/**
+ *
+ * Retrieve the score details when focused
+ *
+ */
+jetpack.tabs.onFocus(function () {
+  let scoreDetails = jetpack.storage.simple.scoreDetails;
+  for (let i = 0; i < scoreDetails.length; i++) {
+    if (this.url == scoreDetails[i].site) {
+	cb.notify();
+    }
+  }
+});
+
+/**
+ *
+ * Check if the page needs to be converted into a test automatically
+ * and convert according to test strategy.
+ *
+ */
+jetpack.tabs.onReady(function () {
+    let currentUrl = jetpack.tabs.focused.contentWindow.location.href;
+
+    if (currentUrl.indexOf('ClozeFoxTestStrategy=#prepositionTest') > 0) {
+	runClozeFox(STRATEGY_PREPOSITION);
+    }
+
+    if (currentUrl.indexOf('ClozeFoxTestStrategy=#randomTest') > 0) {
+	runClozeFox(STRATEGY_RANDOM);
+    }
+});
+
+/**
+ *
+ * Check if the test page has been closed and if that is the case
+ * enable the tests and disable the Calculate Score menu item
+ *
+ */
 jetpack.tabs.onClose(function () {
     if (languageTestUrl === jetpack.tabs.focused.contentWindow.location.href) {
 	enableTestsAndDisableCalculateScore();
