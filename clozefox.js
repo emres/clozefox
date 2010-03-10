@@ -22,13 +22,13 @@ var manifest = {
 	    label: "Twitter",
 	    settings: [
 		{ name: "username", type: "text", label: "Username" },
-		{ name: "password", type: "password", label: "Password" }
+		{ name: "password", type: "password", label: "Password" },
+		{ name: "shareOnTwitter", type: "boolean", label: "Share on Twitter?", default: true }
 	    ]
-	},
-	
-	{ name: "music", type: "boolean", label: "Music", default: true },
-	{ name: "volume", type: "range", label: "Volume", min: 0, max: 10, default: 5 },
-	{ name: "shareOnTwitter", type: "boolean", label: "Share on Twitter?", default: true}
+	}
+	// ,	
+	// { name: "music", type: "boolean", label: "Music", default: true },
+	// { name: "volume", type: "range", label: "Volume", min: 0, max: 10, default: 5 }
     ]
 };
 
@@ -285,6 +285,9 @@ function calculateFrequencyList(txt) {
 function detectLanguage(fListArray) {
     var numOfMatchingWords = 0;
     var resultLanguage = UNKNOWN_LANGUAGE;
+    var fListArrayLength;
+    var englishFrequencyListLength;
+    var dutchFrequencyListLength;
     var l = 0;
 
     //
@@ -654,7 +657,7 @@ function calculateScore() {
 
     enableTestsAndDisableCalculateScore();    
 
-    if (jetpack.storage.settings.shareOnTwitter) {
+    if (jetpack.storage.settings.twitter.shareOnTwitter) {
 
 	var twitterStatusMessage = "#clozefox ";
 	twitterStatusMessage += testStrategyToString[testStrategy] +  " ";
@@ -721,6 +724,10 @@ function displayScoreStats(statsDiv) {
 	let numberOfTestsDone = scoreDetails.length;
 	let numberOfRandomTests = scoreDetails.filter(function(element) {return element.strategy === STRATEGY_RANDOM;}).length;
 	let numberOfPrepositionTests = scoreDetails.filter(function(element) {return element.strategy === STRATEGY_PREPOSITION;}).length;
+
+	let randomAveragePercentage = 0;
+	let prepositionAveragePercentage = 0;
+
 	/*
 	  see 
 	  http://stackoverflow.com/questions/2118123/why-does-reduceright-return-nan-in-javascript
@@ -736,13 +743,18 @@ function displayScoreStats(statsDiv) {
 	                           .filter(function(element) {return element.strategy === STRATEGY_PREPOSITION;})
 	                           .reduceRight(function(x, y) {return x + y.percentage;}, 0);
  
-
-	let randomAveragePercentage = (totalRandomTestScore / numberOfRandomTests);
+	if (numberOfRandomTests !== 0) {
+	    randomAveragePercentage = (totalRandomTestScore / numberOfRandomTests);
+	}
+	
 	randomAveragePercentage = Math.round(randomAveragePercentage * 100) / 100; //round percentage to two decimals
 	toShow += '<p class="score">Number of random tests done = ' + numberOfRandomTests + '<br/>';
 	toShow += 'Average percentage of success = %' + randomAveragePercentage + '</p>';
+	
+	if (numberOfPrepositionTests !== 0) {
+	    prepositionAveragePercentage = (totalPrepositionTestScore / numberOfPrepositionTests);
+	}
 
-	let prepositionAveragePercentage = (totalPrepositionTestScore / numberOfPrepositionTests);
 	prepositionAveragePercentage = Math.round(prepositionAveragePercentage * 100) / 100; //round percentage to two decimals
 	toShow += '<p class="score">Number of preposition tests done = ' + numberOfPrepositionTests + '<br/>';
 	toShow += 'Average percentage of success = %' + prepositionAveragePercentage + '</p>';
