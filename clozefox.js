@@ -684,8 +684,8 @@ function calculateScore() {
 
 /**
  *
- * Displays the details of test scores in the slide bar
- * @param {Object} content This is part of content marked by the plug in
+ * Displays the details of test scores in the slidebar
+ * @param {Object} content This is part of content marked by the plug-in
  *
  */
 function displayScoreDetails(content) {    
@@ -700,6 +700,10 @@ function displayScoreDetails(content) {
     } 
     else {	
 	
+	// order scoreDetails by time, that is reverse the array
+	// because newest items were added to the end of it
+	scoreDetails.reverse();
+
 	for (let i = 0; i < scoreDetails.length; i++) {
 	    //toShow += "Page tile  " +  scoreDetails[i].time + " score = " + scoreDetails[i].score + "<br/>";
 	    toShow += "<p class=\"score\">Test title: <a href=\"" + scoreDetails[i].site + "\" target=\"_new\">" +  scoreDetails[i].title + "</a><br/>";
