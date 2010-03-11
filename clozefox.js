@@ -46,11 +46,13 @@ var manifest = {
  */
 const STRATEGY_RANDOM       = 1000;
 const STRATEGY_PREPOSITION  = 1100;
+const STRATEGY_VERB         = 1200;
 
 var testStrategy = 0;
 var testStrategyToString = [];
 testStrategyToString[STRATEGY_RANDOM] = "#randomTest";
 testStrategyToString[STRATEGY_PREPOSITION] = "#prepositionTest";
+testStrategyToString[STRATEGY_VERB] = "#verbTest";
 
 
 /**
@@ -348,6 +350,9 @@ function createTest(doc, strategy, language) {
 	case STRATEGY_PREPOSITION:
 	  createPrepositionTest(doc, language);
 	  break;
+	case STRATEGY_VERB:
+	  createVerbTest(doc, language);
+	  break;
 	default:
 	  console.log("Error: Unknown test strategy!");	  
     }
@@ -582,6 +587,40 @@ function createPrepositionTest(doc, language) {
 	$(this).html(textStr);
     });
 }
+
+
+/**
+ *
+ * Creates the verb test for a given document
+ * @param {Object} doc  
+ * @param {Number} language
+ *
+ */
+function createVerbTest(doc, language) {
+    var idCounter = 1;   
+    var selectHeader = "<select id=\"clozefox_answer\">";
+    var selectFooter = "</select>";
+    var randomDistractors = englishPrepositionList.getRandomElements(3);
+    var serverResponse = "";
+ 
+    $(doc).find("[id^=clozefox_paragraph]").each(function (index) {
+	var currentParagraph = $(this);
+	var textStr = currentParagraph.text();
+   
+	if (index < 2) {
+	    
+	    // send the text to the clozefoxServer app
+	    $.post("http://localhost:8080/nltk", { content: textStr},
+		   function (data) {
+		       serverResponse = data;		    
+		       textStr = serverResponse;
+		       currentParagraph.html(serverResponse);
+	    });
+	}
+    });
+}
+
+
 
 /**
  *
@@ -899,6 +938,14 @@ var clozeFoxMenu =  new jetpack.Menu([
 	    runClozeFox(STRATEGY_PREPOSITION);
 	}
     },
+    {
+	label: "Verb Test", 
+	command: function () {
+	    testStrategy = STRATEGY_VERB;
+	    runClozeFox(STRATEGY_VERB);
+	}
+    },
+
     
     null, // separator
 
