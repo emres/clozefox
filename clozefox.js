@@ -161,7 +161,7 @@ jetpack.slideBar.append({
     width: 350,
     icon: 'http://dev.linguapolis.be/jetpack/images/ua_logo.png',
     html: initialContent,
-    persist: true,
+    persist: false,
     onReady: function(slide) {
 	cb = slide;
     },
@@ -356,7 +356,7 @@ function createTest(doc, strategy, language) {
 /**
  *
  * Creates the random test for a given document
- * @param {Object} doc
+ * @param {String} doc
  * @param {Number} language
  *
  */
@@ -510,6 +510,7 @@ function createPrepositionTest(doc, language) {
  
     $(doc).find("[id^=clozefox_paragraph]").each(function (index) {
 	var textStr = $(this).text();
+    
 	var listOfWords = textStr.split(" ");		
 
 	    switch (language) {		
@@ -667,7 +668,14 @@ function calculateScore() {
 	    var urlyResponse = JSON.parse(data);
 	    var shortUrl = "http://ur.ly/" + urlyResponse.code;
 	    twitterStatusMessage += " " + shortUrl;
-	    jetpack.lib.twitter.statuses.update({ status: twitterStatusMessage }); 
+	    jetpack.lib.twitter.statuses.update({
+		data: { 
+		    status: twitterStatusMessage 
+		},
+		username: jetpack.storage.settings.twitter.username,
+		password: jetpack.storage.settings.twitter.password
+						 
+	    }); 
 	    jetpack.notifications.show("ClozeFox updated your Twitter status to show your score.");
 	});	
     }
@@ -1027,12 +1035,17 @@ jetpack.tabs.onFocus(function () {
 jetpack.tabs.onReady(function () {
     let currentUrl = jetpack.tabs.focused.contentWindow.location.href;
 
+    // testStrategy = STRATEGY_PREPOSITION;
+    // runClozeFox(STRATEGY_PREPOSITION);
+
     if (currentUrl.indexOf('ClozeFoxTestStrategy=#prepositionTest') > 0) {
-	runClozeFox(STRATEGY_PREPOSITION);
+    	testStrategy = STRATEGY_PREPOSITION;
+    	runClozeFox(STRATEGY_PREPOSITION);
     }
 
     if (currentUrl.indexOf('ClozeFoxTestStrategy=#randomTest') > 0) {
-	runClozeFox(STRATEGY_RANDOM);
+    	testStrategy = STRATEGY_RANDOM;
+    	runClozeFox(STRATEGY_RANDOM);
     }
 });
 
