@@ -1045,6 +1045,7 @@ function enableTestsAndDisableCalculateScore() {
     clozeFoxMenu.beforeShow = function () {
 	clozeFoxMenu.item("Random Test").disabled = false;
 	clozeFoxMenu.item("Preposition Test").disabled = false;
+	clozeFoxMenu.item("Verb Test").disabled = false;
 	clozeFoxMenu.item("Calculate Score").disabled = true;
     };
 }
@@ -1058,6 +1059,7 @@ function disableTestsAndEnableCalculateScore() {
     clozeFoxMenu.beforeShow = function () {
 	clozeFoxMenu.item("Random Test").disabled = true;
 	clozeFoxMenu.item("Preposition Test").disabled = true;
+	clozeFoxMenu.item("Verb Test").disabled = true;
 	clozeFoxMenu.item("Calculate Score").disabled = false;
     };
 }
